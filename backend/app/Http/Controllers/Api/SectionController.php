@@ -12,7 +12,7 @@ class SectionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Section::query()
-            ->with(['teacher', 'students'])
+            ->with(['teachers', 'students'])
             ->when($request->grade_level, fn($q) => $q->where('grade_level', $request->grade_level));
 
         $sections = $query->paginate($request->get('per_page', 25));

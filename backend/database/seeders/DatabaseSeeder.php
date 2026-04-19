@@ -64,7 +64,6 @@ class DatabaseSeeder extends Seeder
             'grade_level' => '5th',
             'room' => 'B101',
             'counselor_id' => $counselor1->id,
-            'teacher_id' => $teacher1->id,
             'semester' => 'fall',
         ]);
 
@@ -74,9 +73,12 @@ class DatabaseSeeder extends Seeder
             'grade_level' => '5th',
             'room' => 'B102',
             'counselor_id' => $counselor1->id,
-            'teacher_id' => $teacher2->id,
             'semester' => 'fall',
         ]);
+
+        // Assign teachers via pivot table (N:M relationship)
+        $section1->teachers()->attach($teacher1->id);
+        $section2->teachers()->attach($teacher2->id);
 
         // Create students
         $student1 = Student::create([

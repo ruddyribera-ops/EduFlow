@@ -64,7 +64,7 @@ WORKDIR /app
 COPY --from=builder /app/vendor ./vendor
 COPY --from=builder /app/bootstrap ./bootstrap
 COPY --from=builder /app/app ./app
-COPY --from=builder /app/config ./config
+# Note: config/ directory is not needed in Laravel 11 (uses bootstrap/app.php + .env)
 COPY --from=builder /app/database ./database
 COPY --from=builder /app/routes ./routes
 COPY --from=builder /app/public ./public
