@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const withNextIntl = require('next-intl/plugin').default;
+
 const nextConfig = {
   reactStrictMode: true,
   eslint: {
@@ -8,4 +10,4 @@ const nextConfig = {
   output: 'standalone',
 };
 
-module.exports = nextConfig;
+module.exports = withNextIntl(nextConfig);
