@@ -35,8 +35,8 @@ RUN composer install --no-interaction --no-dev --no-scripts --prefer-dist --opti
 # Copy application source
 COPY backend/ .
 
-# Generate optimized autoload (--ignore-platform-reqs because prod may differ from dev PHP version)
-RUN composer dump-autoload --optimize --ignore-platform-reqs
+# Generate optimized autoload
+RUN composer dump-autoload --optimize --no-scripts --ignore-platform-reqs
 
 # ============================================
 # Production Stage
