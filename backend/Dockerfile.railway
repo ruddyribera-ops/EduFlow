@@ -46,9 +46,9 @@ FROM php:8.3-fpm-alpine AS production
 # Install system dependencies
 RUN apk add --no-cache \
     libpng-dev \
-    libonig-dev \
+    oniguruma-dev \
     libxml2-dev \
-    libpq-dev \
+    postgresql-dev \
     curl \
     unzip
 
