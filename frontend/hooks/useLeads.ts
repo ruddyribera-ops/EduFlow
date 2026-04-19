@@ -1,18 +1,12 @@
 import useSWR, { mutate } from "swr";
-import type { Lead, LeadStatus, ApiListResponse } from "@/types";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+import { apiFetch, swrFetcher } from "@/lib/api";
+import type { ApiListResponse, Lead, LeadStatus } from "@/types";
 
 type LeadsResponse = ApiListResponse<Lead>;
-
-const fetcher = async (url: string): Promise<LeadsResponse> => {
-  const res = await fetch(url, { credentials: "include" });
-  if (!res.ok) throw new Error(`Failed to fetch leads (HTTP ${res.status})`);
-  return res.json();
-};
+const KEY = "/leads";
 
 export function useLeads() {
-  const { data, error, isLoading } = useSWR<LeadsResponse>(`${API_BASE}/leads`, fetcher, {
+  const { data, error, isLoading } = useSWR<LeadsResponse>(KEY, swrFetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 5000,
   });
@@ -23,7 +17,7 @@ export function useLeads() {
     const previous = data;
 
     mutate(
-      `${API_BASE}/leads`,
+      KEY,
       (current: LeadsResponse | undefined) => {
         if (!current) return { data: [], meta: { total: 0 } };
         return {
@@ -37,18 +31,13 @@ export function useLeads() {
     );
 
     try {
-      const res = await fetch(`${API_BASE}/leads/${leadId}/status`, {
+      await apiFetch(`/leads/${leadId}/status`, {
         method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-
-      if (!res.ok) throw new Error(`Failed to update lead (HTTP ${res.status})`);
-
-      mutate(`${API_BASE}/leads`);
+      mutate(KEY);
     } catch (err) {
-      mutate(`${API_BASE}/leads`, previous, false);
+      mutate(KEY, previous, false);
       throw err;
     }
   };

@@ -30,6 +30,7 @@ export interface Guardian {
   email: string;
   phone: string | null;
   communication_preference: CommunicationPreference;
+  relationship_type?: string;
 }
 
 export type EnrollmentStatus =
@@ -40,14 +41,13 @@ export type EnrollmentStatus =
   | "withdrawn"
   | "graduated";
 
-export interface Student {
+export type UserRole = "admin" | "counselor" | "teacher" | "guardian";
+
+export interface User {
   id: string;
-  first_name: string;
-  last_name: string;
-  date_of_birth: string | null;
-  grade_level: string;
-  enrollment_status: EnrollmentStatus;
-  guardians?: Guardian[];
+  name: string;
+  email: string;
+  role: UserRole;
 }
 
 export interface Section {
@@ -56,7 +56,63 @@ export interface Section {
   grade_level: string;
   room: string | null;
   semester: string;
+  teacher_id: string | null;
+  counselor_id: string | null;
+  teacher?: User | null;
+  counselor?: User | null;
   students_count?: number;
+}
+
+export interface Student {
+  id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string | null;
+  grade_level: string;
+  enrollment_status: EnrollmentStatus;
+  section_id: string | null;
+  section?: Section | null;
+  guardians?: Guardian[];
+}
+
+export type RiskFactor = "low_attendance" | "grade_decline";
+export type RiskStatus = "pending" | "reviewed" | "resolved";
+
+export interface RiskAlert {
+  id: string;
+  student_id: string;
+  risk_factors: RiskFactor[];
+  attendance_rate: number;
+  grade_drop_percentage: number;
+  status: RiskStatus;
+  created_at: string;
+  reviewed_at: string | null;
+  notes: string | null;
+  student?: Pick<Student, "id" | "first_name" | "last_name" | "grade_level"> | null;
+}
+
+export interface BroadcastResult {
+  id: string;
+  message: string;
+  scope: "all" | "students";
+  student_ids: string[] | null;
+  total: number;
+  email_sent: number;
+  sms_sent: number;
+  skipped: number;
+  sent_at: string;
+}
+
+export interface DashboardStats {
+  leads_total: number;
+  leads_by_stage: Record<LeadStatus, number>;
+  leads_active: number;
+  students_total: number;
+  students_enrolled: number;
+  sections_total: number;
+  risk_alerts_pending: number;
+  risk_alerts_total: number;
+  broadcasts_sent: number;
 }
 
 export interface ApiListResponse<T> {
