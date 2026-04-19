@@ -54,6 +54,24 @@
 - Each service has its own Dockerfile (backend: `Dockerfile.railway`, frontend: `Dockerfile.railway`)
 
 ### 6. Backend — Auth + Risk Alerts + CORS Wiring ✅ (April 19 evening)
+
+### 7. Login Flow Bugs Fixed ✅ (April 19 late)
+Login had 4 stacked bugs causing a flash-loop:
+- **Missing password field**: Login form only sent `email` — `password` was never in the form UI. API validation failed silently, Laravel returned HTML redirect (not JSON) because `Accept: */*` header meant no `Accept: application/json`.
+- **Wrong response parsing**: `apiFetch` returns `{data: {token, user}}` from the API, but login handler used `res.token` / `res.user` (top-level) instead of `res.data.token` / `res.data.user`. `saveSession` received `user=undefined` → stored string `"undefined"` in localStorage.
+- **Routing conflict**: Both `/[locale]/page.tsx` and `/[locale]/(dashboard)/page.tsx` resolved to `/en`. Root page (redirect to login) won, dashboard never loaded.
+- **CSRF 302 loop**: `EnsureFrontendRequestsAreStateful` was prepended to ALL API routes by `SanctumServiceProvider::boot()`, not just routes in `bootstrap/app.php`. Even with `stateful: []` config, the middleware ran (though `fromFrontend()` returned false, it still added overhead). Also, bootstrap was not in docker-compose volume mounts, so `bootstrap/app.php` changes weren't picked up.
+
+**Fixes**:
+- Added password input field to login form
+- Fixed `LoginResponse` type and `saveSession(res.data.token, res.data.user)`
+- Deleted `/[locale]/page.tsx` so `(dashboard)/page.tsx` owns `/en`
+- Removed `EnsureFrontendRequestsAreStateful` from `bootstrap/app.php`
+- Published `backend/config/sanctum.php` with `stateful: []` (belt-and-suspenders)
+- Added `./backend/bootstrap` to docker-compose volume mounts
+- Created `RemoveStatefulMiddlewareServiceProvider` (prevents Sanctum from prepending the middleware at boot)
+
+**Verified with Playwright (Node.js)**: Login → Dashboard → Stats all work end-to-end.
 The frontend was calling five endpoints that simply didn't exist on the Laravel API (`/api/auth/login`, `/api/auth/logout`, `/api/auth/me`, `GET /api/risk-alerts`, `PATCH /api/risk-alerts/{id}`). Login returned 404 against the backend, so the dashboard never worked against real data. Added:
 - **`AuthController`** (`backend/app/Http/Controllers/Api/AuthController.php`) — `login` validates credentials with `Hash::check`, revokes old tokens, returns `{data: {token, user}}`; `me` returns the authenticated user; `logout` deletes the current access token.
 - **`RiskAlertController`** (`backend/app/Http/Controllers/Api/RiskAlertController.php`) — `index` paginated list with `?status=` filter + `student` eager-load; `update` accepts `{status, notes}` with enum-validated status.
@@ -154,6 +172,17 @@ curl.exe -s -H "Accept: application/json" http://localhost:8000/api/stats
 | `frontend/Dockerfile.local` | npm install --ignore-scripts |
 
 ### New (April 19 evening — auth + risk-alerts + CORS)
+
+### New (April 19 late — login flow bugs)
+
+| File | What Changed |
+|------|-------------|
+| `backend/app/Providers/RemoveStatefulMiddlewareServiceProvider.php` | **NEW** — prevents Sanctum from prepending `EnsureFrontendRequestsAreStateful` to API middleware |
+| `backend/config/sanctum.php` | **NEW** — published from vendor; `stateful: []` prevents `fromFrontend()` matching |
+| `frontend/app/[locale]/login/page.tsx` | Added password field; fixed `LoginResponse` type to `data:{token,user}`; fixed `saveSession(res.data.token, res.data.user)` |
+| `frontend/app/[locale]/page.tsx` | **DELETED** — conflicting route; `(dashboard)/page.tsx` now owns `/en` |
+| `backend/bootstrap/app.php` | Removed `EnsureFrontendRequestsAreStateful` from API middleware |
+| `docker-compose.yml` | Added `./backend/bootstrap` volume mount |
 | File | What Changed |
 |------|-------------|
 | `backend/app/Http/Controllers/Api/AuthController.php` | **NEW** — login / me / logout with Sanctum |
@@ -185,11 +214,9 @@ curl.exe -s -H "Accept: application/json" http://localhost:8000/api/stats
 ## Git Log (Recent Commits)
 
 ```
-c786b00 (HEAD -> main) feat: EduFlow fully wired — Auth + RiskAlerts + CORS + verified e2e
-4e5c74a fix: HANDOVER.md remove stale uncommitted note
-c8b832b docs: add HANDOVER.md and fix frontend/Dockerfile.local
-0f7168e fix: frontend/Dockerfile.railway use npm install instead of npm ci
-0ab7bfa fix: DatabaseSeeder variable ordering and composite PK pivot inserts
+11362fc (HEAD -> main) fix: login flow — CSRF bypass, missing password field, wrong response parsing, routing conflict
+81fef2c fix: login page hydration flash and apiFetch JSON parse crash
+c786b00 feat: EduFlow fully wired — Auth + RiskAlerts + CORS + verified e2e
 ```
 
 ---
@@ -214,9 +241,28 @@ Everything is committed and pushed. The local stack is fully working. Only Railw
    - **Backend**: Root directory = `backend`, Dockerfile = `Dockerfile.railway`
    - **Frontend**: Root directory = `frontend`, Dockerfile = `Dockerfile.railway`
 3. **Set Railway environment variables**:
-   - **Backend**: `APP_KEY`, `DB_HOST` (PostgreSQL connection string), `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `CACHE_STORE=array`, `SESSION_DRIVER=array`, `SANCTUM_STATEFUL_DOMAINS`, `FRONTEND_URL`
+   - **Backend**: `APP_KEY`, `DB_HOST` (PostgreSQL connection string), `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `CACHE_STORE=array`, `SESSION_DRIVER=array`
    - **Frontend**: `NEXT_PUBLIC_API_URL` (backend's public URL)
 4. **Run migrations on Railway**:
    ```bash
    railway run --service backend php /var/www/html/artisan migrate:fresh --seed --force
    ```
+
+## Local Dev Commands
+
+```bash
+# Start Docker stack
+cd C:\Users\Windows\eduflow
+docker-compose up -d
+
+# Run migrations (after fresh start)
+docker exec eduflow-backend-1 php /var/www/html/artisan migrate:fresh --seed --force
+
+# Test login
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@eduflow.test","password":"password"}'
+
+# Frontend dev server (run separately, not in docker)
+cd frontend && npm run dev
+```
