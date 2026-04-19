@@ -29,8 +29,8 @@ WORKDIR /app
 # Copy composer files first (layer caching)
 COPY backend/composer.json backend/composer.lock* ./
 
-# Install dependencies
-RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
+# Install dependencies (--no-scripts to skip post-install scripts that need artisan)
+RUN composer install --no-interaction --no-dev --no-scripts --prefer-dist --optimize-autoloader --ignore-platform-reqs
 
 # Copy application source
 COPY backend/ .
