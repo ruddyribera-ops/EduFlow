@@ -1,0 +1,2 @@
+# This file is required for Laravel Docker builds
+# It can remain empty but must exist
