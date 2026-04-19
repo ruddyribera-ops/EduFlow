@@ -1,0 +1,90 @@
+# EduFlow Backend - Railway Production Dockerfile
+# Multi-stage build optimized for Railway deployment
+
+FROM php:8.3-fpm-alpine AS builder
+
+# Install system dependencies
+RUN apk add --no-cache \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libpq-dev \
+    zip \
+    unzip \
+    nodejs \
+    npm \
+    autoconf \
+    g++ \
+    make
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+# Copy composer files first (layer caching)
+COPY backend/composer.json backend/composer.lock* ./
+
+# Install dependencies
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
+
+# Copy application source
+COPY backend/ .
+
+# Generate optimized autoload
+RUN composer dump-autoload --optimize
+
+# ============================================
+# Production Stage
+# ============================================
+FROM php:8.3-fpm-alpine AS production
+
+# Install system dependencies
+RUN apk add --no-cache \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libpq-dev \
+    curl \
+    unzip
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
+
+# Create non-root user for security
+RUN addgroup -g 1000 -S www && adduser -S www -u 1000
+
+WORKDIR /app
+
+# Copy from builder
+COPY --from=builder /app/vendor ./vendor
+COPY --from=builder /app/bootstrap ./bootstrap
+COPY --from=builder /app/app ./app
+COPY --from=builder /app/config ./config
+COPY --from=builder /app/database ./database
+COPY --from=builder /app/routes ./routes
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/resources ./resources
+COPY --from=builder /app/storage ./storage
+
+# Copy env file (will be overridden by Railway env vars)
+COPY backend/.env.example .env
+
+# Set permissions
+RUN chown -R www:www /app/storage /app/bootstrap/cache
+RUN chmod -R 775 /app/storage /app/bootstrap/cache
+
+USER www
+
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/up || exit 1
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

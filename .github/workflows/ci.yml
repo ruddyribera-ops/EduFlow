@@ -1,0 +1,309 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  PHP_VERSION: '8.3'
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # BACKEND — Laravel / PHP Tests
+  # ============================================
+  backend-lint:
+    name: Backend Lint
+    runs-on: ubuntu-latest
+    container: php:$PHP_VERSION-cli-alpine
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: eduflow_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apk add --no-cache $PHPIZE_DEPS
+          curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Setup environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: postgres
+          DB_PORT: 5432
+          DB_DATABASE: eduflow_test
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+
+      - name: Run Laravel Pint (linter)
+        run: ./vendor/bin/pint --test
+
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    container: php:$PHP_VERSION-cli-alpine
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: eduflow_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apk add --no-cache $PHPIZE_DEPS
+          curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Setup environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+          php artisan migrate --force
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: postgres
+          DB_PORT: 5432
+          DB_DATABASE: eduflow_test
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          APP_ENV: testing
+
+      - name: Run PHPUnit
+        run: ./vendor/bin/phpunit --testdox
+
+  # ============================================
+  # FRONTEND — Next.js / TypeScript
+  # ============================================
+  frontend-lint:
+    name: Frontend Lint & Type Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: ESLint
+        run: npm run lint
+
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api' }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: frontend/.next
+          retention-days: 7
+
+  # ============================================
+  # E2E TESTS — Playwright
+  # ============================================
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-build]
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: eduflow_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Backend setup
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          composer install --no-interaction --prefer-dist
+          cp .env.example .env
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: eduflow_test
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+
+      - name: Generate keys & migrate
+        run: |
+          cd backend
+          php artisan key:generate --force
+          php artisan migrate --force --seed
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: eduflow_test
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+
+      - name: Start backend server
+        run: cd backend && php artisan serve --port=8000 &
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_DATABASE: eduflow_test
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+
+      # Frontend setup
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-build
+          path: frontend/.next
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start frontend server
+        run: npm run start &
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api
+          PORT: 3000
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api
+
+  # ============================================
+  # SECURITY AUDIT
+  # ============================================
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: PHP Security Audit
+        run: |
+          cd backend
+          composer install --no-interaction --prefer-dist
+          composer audit --no-interaction
+        continue-on-error: true
+
+      - name: Node Security Audit
+        run: |
+          cd frontend
+          npm ci
+          npm audit --production --audit-level=high
+        continue-on-error: true
+
+  # ============================================
+  # DEPLOY TO RAILWAY (on merge to main)
+  # ============================================
+  deploy-railway:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    needs: [backend-lint, backend-test, frontend-lint, frontend-build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Railway
+        uses: railway-deploy@v1
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: eduflow-backend
+          environment: production
+        env:
+          NODE_VERSION: ${{ env.NODE_VERSION }}
+          PHP_VERSION: ${{ env.PHP_VERSION }}

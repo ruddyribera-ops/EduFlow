@@ -1,0 +1,32 @@
+# Dependencies
+/vendor/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+storage/logs/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Testing
+.phpunit.result.cache
+coverage/
+
+# Docker
+Dockerfile
+docker-compose*.yml
+
+# Git
+.git/
+.gitignore
+
+# Misc
+*.tgz
+composer.lock
