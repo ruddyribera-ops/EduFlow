@@ -69,14 +69,14 @@ COPY --from=builder /app/database ./database
 COPY --from=builder /app/routes ./routes
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/resources ./resources
-COPY --from=builder /app/storage ./storage
+
+# Create storage directory (not copied from builder since it doesn't exist in source)
+RUN mkdir -p /app/storage/app/public /app/storage/framework/{cache,sessions,testing,views} /app/storage/logs /app/bootstrap/cache
+RUN chown -R www:www /app/storage /app/bootstrap/cache
+RUN chmod -R 775 /app/storage /app/bootstrap/cache
 
 # Copy env file (will be overridden by Railway env vars)
 COPY backend/.env.example .env
-
-# Set permissions
-RUN chown -R www:www /app/storage /app/bootstrap/cache
-RUN chmod -R 775 /app/storage /app/bootstrap/cache
 
 USER www
 
