@@ -124,12 +124,7 @@ curl.exe -s -H "Accept: application/json" http://localhost:8000/api/stats
 | `frontend/Dockerfile.railway` | npm install instead of npm ci |
 | `frontend/Dockerfile.local` | npm install --ignore-scripts |
 
-### Uncommitted (Dockerfile.local change only)
-```bash
-# Still needs commit:
-M  frontend/Dockerfile.local
-# Diff: npm ci → npm install --ignore-scripts
-```
+All file changes are committed and pushed to GitHub.
 
 ---
 
