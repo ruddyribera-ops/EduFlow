@@ -1,14 +1,8 @@
 import createMiddleware from 'next-intl/middleware';
+import {routing} from './routing';
 
-export default createMiddleware({
-  // A list of all locales that are supported
-  locales: ['en', 'es', 'pt-BR'],
-
-  // Used when no locale matches
-  defaultLocale: 'en'
-});
+export default createMiddleware(routing);
 
 export const config = {
-  // Match only internationalized pathnames
-  matcher: ['/', '/(es|pt-BR|en)/:path*']
+  matcher: '/((?!api|trpc|_next|_vercel|.*\\..*).*)',
 };

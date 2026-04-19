@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getLocale } from "next-intl/server";
 
 interface LocaleLayoutProps {
   children: ReactNode;
@@ -12,9 +12,10 @@ export default async function LocaleLayout({
   params: { locale },
 }: LocaleLayoutProps) {
   const messages = await getMessages({ locale });
+  const resolvedLocale = await getLocale();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={resolvedLocale} suppressHydrationWarning>
       <body>
         <NextIntlClientProvider messages={messages}>
           {children}
