@@ -185,6 +185,9 @@ curl.exe -s -H "Accept: application/json" http://localhost:8000/api/stats
 ## Git Log (Recent Commits)
 
 ```
+c786b00 (HEAD -> main) feat: EduFlow fully wired — Auth + RiskAlerts + CORS + verified e2e
+4e5c74a fix: HANDOVER.md remove stale uncommitted note
+c8b832b docs: add HANDOVER.md and fix frontend/Dockerfile.local
 0f7168e fix: frontend/Dockerfile.railway use npm install instead of npm ci
 0ab7bfa fix: DatabaseSeeder variable ordering and composite PK pivot inserts
 ```
@@ -204,8 +207,16 @@ curl.exe -s -H "Accept: application/json" http://localhost:8000/api/stats
 
 ## How to Resume
 
-1. **Fix Railway access**: `railway login` with the account that owns EduFlow, then `railway up`
-2. **Commit uncommitted changes**: `git add frontend/Dockerfile.local && git commit && git push`
-3. **Start frontend dev server**: `Start-Process cmd -ArgumentList /c,npm run dev -WorkingDirectory C:\Users\Windows\eduflow\frontend`
-4. **Run Railway migrations**: `railway run --service backend php /var/www/html/artisan migrate:fresh --seed --force`
-5. **Verify full app**: Open `http://localhost:3000` and test login flow
+Everything is committed and pushed. The local stack is fully working. Only Railway deployment remains:
+
+1. **Fix Railway account mismatch**: `railway logout` → `railway login` with the account that owns EduFlow (`ruddyribera-ops@gmail.com`).
+2. **Link the Railway services to GitHub**: In the Railway dashboard, connect the EduFlow repo and configure each service:
+   - **Backend**: Root directory = `backend`, Dockerfile = `Dockerfile.railway`
+   - **Frontend**: Root directory = `frontend`, Dockerfile = `Dockerfile.railway`
+3. **Set Railway environment variables**:
+   - **Backend**: `APP_KEY`, `DB_HOST` (PostgreSQL connection string), `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `CACHE_STORE=array`, `SESSION_DRIVER=array`, `SANCTUM_STATEFUL_DOMAINS`, `FRONTEND_URL`
+   - **Frontend**: `NEXT_PUBLIC_API_URL` (backend's public URL)
+4. **Run migrations on Railway**:
+   ```bash
+   railway run --service backend php /var/www/html/artisan migrate:fresh --seed --force
+   ```

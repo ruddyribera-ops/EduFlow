@@ -9,8 +9,10 @@ import type { User } from "@/types";
 import { useTranslations } from "next-intl";
 
 interface LoginResponse {
-  token: string;
-  user: User;
+  data: {
+    token: string;
+    user: User;
+  };
 }
 
 const TEST_EMAILS = [
@@ -26,6 +28,7 @@ export default function LoginPage() {
   const router = useRouter();
   const t = useTranslations("login");
   const [email, setEmail] = useState("admin@eduflow.test");
+  const [password, setPassword] = useState("password");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -47,9 +50,9 @@ export default function LoginPage() {
     try {
       const res = await apiFetch<LoginResponse>("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password }),
       });
-      saveSession(res.token, res.user);
+      saveSession(res.data.token, res.data.user);
       router.replace(`/${locale}`);
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : t("error");
@@ -75,6 +78,17 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-900"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-900"
             />
           </div>

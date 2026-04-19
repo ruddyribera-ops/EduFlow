@@ -39,6 +39,7 @@ services:
     volumes:
       - ./backend/app:/var/www/html/app
       - ./backend/routes:/var/www/html/routes
+      - ./backend/bootstrap:/var/www/html/bootstrap
       - ./backend/database:/var/www/html/database
       - ./backend/public:/var/www/html/public
       - ./backend/resources:/var/www/html/resources
