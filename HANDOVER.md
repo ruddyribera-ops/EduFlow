@@ -1,8 +1,8 @@
 # EduFlow - School CRM Handover Document
 
 **Project:** EduFlow (School Relationship Management System)
-**Last Updated:** April 19, 2026 (Claude Code session 2)
-**Status:** Phase 1-5 Architecture Complete, Frontend running end-to-end against mock API, backend pending PHP toolchain install
+**Last Updated:** April 19, 2026 (Claude Code + OpenCode session 3)
+**Status:** Phase 1-5 Architecture Complete, Full Dashboard UI running locally, backend pending PHP toolchain install
 
 ---
 
@@ -16,7 +16,64 @@ EduFlow is a Vertical SaaS CRM for the Education sector. Architecture for all 5 
 - AI At-Risk detection command
 - Emergency broadcast respecting communication preferences
 
-**Current state:** Frontend Kanban runs locally end-to-end against an expanded Node mock API (zero PHP dependency). Critical frontend bugs and migration FK gaps fixed. Backend Laravel still needs `composer install` + Postgres (dev machine lacks PHP/Composer/Docker/Postgres).
+**Current state:** Full dashboard UI with 6 pages runs locally end-to-end against a 14-endpoint Node mock API. Zero PHP dependency. All features (Admissions, Students, Sections, Risk Alerts, Broadcast) functional with auth, filters, and state mutations. Backend Laravel scaffolding still needs `composer install` + Postgres.
+
+---
+
+## 🆕 Session 3 Changes (April 19, 2026 — Full Dashboard Build)
+
+### New Pages (6 pages + 1 layout)
+| Route | Feature | Notes |
+|---|---|---|
+| `/login` | Email-based auth form | 5 demo accounts clickable, token → localStorage |
+| `/` | Dashboard home | Stats cards (4 KPIs), pipeline snapshot, quick action links |
+| `/admissions` | Kanban (existing) | ✅ Drag-drop, optimistic updates, 422 validation |
+| `/students` | List with filters | Grade level + enrollment status dropdowns, "View →" links |
+| `/students/[id]` | Student detail | Section assigned, teacher, counselor, guardians with comm pref + relationship type |
+| `/sections` | Grid of sections | Teacher/counselor/student count, semester badge |
+| `/risk-alerts` | List with status filter | Inline "Mark reviewed" / "Resolve" buttons, notes panel |
+| `/broadcast` | Emergency broadcast form | Scope: all guardians or specific students, respects comm preference, history |
+| `(dashboard)/layout.tsx` | Auth shell | Sidebar nav, user info + logout, redirects unauth to /login |
+
+### New Libraries & Utils
+| File | Purpose |
+|---|---|
+| `lib/api.ts` | Unified API client (auth headers, error handling, SWR fetcher) |
+| `lib/auth.ts` | Session mgmt (localStorage token/user, getUser/saveSession/clearSession) |
+| Updated `types/index.ts` | `User`, `RiskAlert`, `RiskFactor`, `RiskStatus`, `BroadcastResult`, `DashboardStats`, `UserRole` |
+
+### Expanded Mock API (14 endpoints total)
+| Method | Path | New in Session 3 |
+|---|---|---|
+| GET | `/api/stats` | Dashboard aggregates (KPIs, leads_by_stage, risk counts) |
+| POST/GET | `/api/auth/logout` | Session cleanup stub |
+| GET | `/api/risk-alerts?status=` | List with expand(student) |
+| PATCH | `/api/risk-alerts/:id` | Update status/notes |
+| POST/GET | `/api/broadcasts` | Respects communication_preference (email_only/sms_only/both), calculates email_sent/sms_sent/skipped |
+| GET | `/api/students` expand | Now includes `section` object + `guardians` with `relationship_type` |
+| GET | `/api/sections` expand | Now includes `teacher` and `counselor` User objects |
+
+Seed data expanded: 7 leads, 5 students, 5 guardians, 3 sections, 3 risk alerts.
+
+### Auth Flow (localStorage-based)
+1. User submits email on `/login`
+2. Mock API returns `{token: "mock-<user_id>", user: {id, name, email, role}}`
+3. `lib/auth.ts` saves both to localStorage
+4. All requests via `lib/api.ts` add `Authorization: Bearer <token>` header
+5. `(dashboard)/layout.tsx` checks session on mount; redirects to /login if missing
+6. Logout clears localStorage, redirects to /login
+
+### Fixes from Session 2 Verified in Session 3
+- ✅ CORS echoes origin + allows credentials (no browser `*` + credentials conflict)
+- ✅ Migration FKs committed (assigned_counselor_id, counselor_id, teacher_id)
+- ✅ Shared types prevent duplicate Lead definitions
+- ✅ `useLeads.ts` now uses unified `lib/api.ts` client
+
+### Verification
+- All 7 routes return HTTP 200
+- `npx tsc --noEmit` — zero errors
+- Mock API validates enum on broadcast scope + risk status
+- Risk alerts & broadcasts persist in-memory during session
 
 ---
 
@@ -58,21 +115,29 @@ Response shape mirrors Laravel API resources: `{data, meta: {total, per_page, cu
 
 ---
 
-## 🏃 Running Locally RIGHT NOW (verified working)
+## 🏃 Running Locally RIGHT NOW (verified working, session 3)
 
 ```bash
 # Terminal 1 — Mock API (Node only, no PHP needed)
 cd C:\Users\Windows\eduflow
 node mock-api.js
-# → http://localhost:8000
+# → http://localhost:8000 (14 endpoints, enum validation, comm preference logic)
 
 # Terminal 2 — Frontend
 cd C:\Users\Windows\eduflow\frontend
 npm run dev
-# → http://localhost:3000 (auto-redirects to /admissions)
+# → http://localhost:3000
 ```
 
-Open http://localhost:3000 → Kanban with 5 seeded leads, drag-drop works, optimistic UI with 422 validation + rollback on failure.
+**Workflow:**
+1. Visit http://localhost:3000 → redirects to `/login`
+2. Click `admin@eduflow.test` (or any demo email)
+3. Lands on Dashboard home with stats + pipeline snapshot
+4. Sidebar nav: Admissions, Students (filterable, detail view), Sections, Risk Alerts (changeable status), Broadcast (form + history)
+5. All mutations (drag-drop, risk status update, broadcast send) persisted in-memory, UI refreshed via SWR
+6. Logout → clears localStorage, redirects to login
+
+**Demo credentials:** admin, sarah@, emily@ (counselor), tom@, lisa@ (teacher)
 
 ---
 
