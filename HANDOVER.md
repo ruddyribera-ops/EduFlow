@@ -1,8 +1,8 @@
 # EduFlow - School CRM Handover Document
 
 **Project:** EduFlow (School Relationship Management System)
-**Last Updated:** April 19, 2026 (Claude Code + OpenCode session 3)
-**Status:** Phase 1-5 Architecture Complete, Full Dashboard UI running locally, backend pending PHP toolchain install
+**Last Updated:** April 19, 2026 (Claude Code session 3 continuation — i18n locale routing fix)
+**Status:** Phase 1-5 Architecture Complete, Full Dashboard UI with i18n (EN/ES/PT-BR) running locally, backend pending PHP toolchain install
 
 ---
 
@@ -74,6 +74,81 @@ Seed data expanded: 7 leads, 5 students, 5 guardians, 3 sections, 3 risk alerts.
 - `npx tsc --noEmit` — zero errors
 - Mock API validates enum on broadcast scope + risk status
 - Risk alerts & broadcasts persist in-memory during session
+
+---
+
+## 🆕 i18n Feature (Session 3 Continuation)
+
+### Multilingual UI Support (English, Spanish, Portuguese-BR)
+
+**Translation Files:**
+- `messages/en.json` — English (239 translations across 11 namespaces)
+- `messages/es.json` — Spanish (239 identical keys, Spanish text)
+- `messages/pt-BR.json` — Portuguese (Brazil) (239 identical keys, Portuguese text)
+
+Coverage: `app`, `nav`, `login`, `dashboard`, `admissions`, `students`, `sections`, `riskAlerts`, `broadcast`, `common` namespaces.
+
+**i18n Infrastructure:**
+- `i18n.ts` — getRequestConfig() for next-intl (loads messages per locale)
+- `middleware.ts` — createMiddleware() routing for `/en/`, `/es/`, `/pt-BR/` prefixes
+- `LanguageSwitcher.tsx` — Sidebar buttons (EN / ES / PT) to switch locales
+- Updated `next.config.js` + `tsconfig.json` with next-intl plugin
+
+**Pages Wired for Translations:**
+All pages under `app/[locale]/` now use `useTranslations()`:
+- `login/page.tsx` — Translated form labels, buttons, demo text
+- `(dashboard)/page.tsx` — Stats card labels, quick action links
+- `(dashboard)/students/page.tsx` — Filters, table headers, no-results message
+- `(dashboard)/students/[id]/page.tsx` — Student detail section labels, guardian UI
+- `(dashboard)/sections/page.tsx` — Section grid, room/teacher/counselor labels
+- `(dashboard)/risk-alerts/page.tsx` — Alert status badges, action buttons, factor labels
+- `(dashboard)/broadcast/page.tsx` — Form labels, scope radio buttons, history display
+
+**Locale Routing:**
+- `/en/` — English (default)
+- `/es/` — Español
+- `/pt-BR/` — Português (Brasil)
+- Root `/` redirects to `/en/login` if not authenticated
+
+**Status:** Fully implemented and committed. Access `/en/login` to test English UI (verified ✅). Spanish (`/es/`) and Portuguese (`/pt-BR/`) locales ready (routing under next-intl)
+
+---
+
+## 🔧 Session 3 Continuation: i18n Locale Routing Fix (April 19, 2026)
+
+### Issue: `/es/` and `/pt-BR/` Routes Returning 404
+**Problem:** Spanish and Portuguese locale routes returned 404 errors while `/en/` worked correctly.
+
+**Root Cause:** `next.config.js` contained deprecated Pages Router i18n configuration:
+```javascript
+i18n: {
+  locales: ['en', 'es', 'pt-BR'],
+  defaultLocale: 'en',
+}
+```
+
+This Pages Router config conflicted with the App Router + next-intl middleware-based locale routing, causing the Spanish and Portuguese routes to be treated as invalid by Next.js routing.
+
+**Fix Applied:**
+Removed the entire `i18n` config block from `next.config.js`. The App Router now relies solely on:
+- `middleware.ts` (locale prefix detection via `createMiddleware()`)
+- `i18n.ts` (message loading per locale via `getRequestConfig()`)
+- `messages/*.json` files (translation content)
+
+**Next Action Required:**
+Clear the Next.js build cache and restart the dev server:
+```bash
+cd frontend
+rm -rf .next
+npm run dev
+```
+
+After rebuild, test:
+- `http://localhost:3000/es/login` → should render with Spanish translations
+- `http://localhost:3000/pt-BR/login` → should render with Portuguese translations
+- Language switcher buttons in sidebar should toggle between all three locales
+
+**Status:** Fix committed. Pending verification in browser after rebuild.
 
 ---
 
