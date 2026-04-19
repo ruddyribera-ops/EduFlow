@@ -53,6 +53,19 @@
 - `frontend/railway.json` points to `frontend/Dockerfile.railway`
 - Each service has its own Dockerfile (backend: `Dockerfile.railway`, frontend: `Dockerfile.railway`)
 
+### 6. Backend — Auth + Risk Alerts + CORS Wiring ✅ (April 19 evening)
+The frontend was calling five endpoints that simply didn't exist on the Laravel API (`/api/auth/login`, `/api/auth/logout`, `/api/auth/me`, `GET /api/risk-alerts`, `PATCH /api/risk-alerts/{id}`). Login returned 404 against the backend, so the dashboard never worked against real data. Added:
+- **`AuthController`** (`backend/app/Http/Controllers/Api/AuthController.php`) — `login` validates credentials with `Hash::check`, revokes old tokens, returns `{data: {token, user}}`; `me` returns the authenticated user; `logout` deletes the current access token.
+- **`RiskAlertController`** (`backend/app/Http/Controllers/Api/RiskAlertController.php`) — `index` paginated list with `?status=` filter + `student` eager-load; `update` accepts `{status, notes}` with enum-validated status.
+- **`config/cors.php`** — allows `http://localhost:3000` + `FRONTEND_URL` env, `supports_credentials: true`, covers `api/*`, `sanctum/csrf-cookie`, `up`. Verified preflight returns `Access-Control-Allow-Origin: http://localhost:3000`.
+- **`backend/routes/api.php`** — registered `POST auth/login` (public, throttle:10), and `GET auth/me`, `POST auth/logout`, `GET risk-alerts`, `PATCH risk-alerts/{riskAlert}` inside the `auth:sanctum` group.
+- **Migration `2024_01_02_000001_add_notes_and_resolved_to_risk_alerts`** — adds `notes TEXT NULL` column and swaps the Postgres enum CHECK so `status` now accepts `resolved` alongside `pending|reviewed|escalated` (frontend already uses `resolved`).
+- **Sanctum migration** published via `vendor:publish --tag=sanctum-migrations`, then edited to use `uuidMorphs('tokenable')` instead of default `morphs()` — our User PK is UUID, not BIGINT.
+- **`RiskAlert` model** — added `notes` to `$fillable`, added `STATUS_RESOLVED` constant.
+- **`docker-compose.yml`** — mounted `./backend/config:/var/www/html/config` so new config files reach the container, and set `CACHE_STORE=array` + `SESSION_DRIVER=array` + `SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000` + `FRONTEND_URL=http://localhost:3000` in the backend service env. The `array` cache avoids the missing `cache` table that the throttle middleware was hitting.
+- **Deleted** `frontend/app/login/page.tsx` — leftover non-locale duplicate of `app/[locale]/login/page.tsx`.
+- **Verified end-to-end**: `POST /api/auth/login` → 200 with `{data:{token, user}}`; `GET /api/auth/me` with bearer token → 200; `/api/stats`, `/api/leads`, `/api/students`, `/api/sections`, `/api/risk-alerts` all return seeded data; `POST /api/auth/logout` revokes the token (next request → 401). i18n locales `/en`, `/es`, `/pt-BR` all return HTTP 200 with correct `lang` attribute.
+
 ---
 
 ## What's Still Pending
@@ -78,15 +91,31 @@ railway run --service backend php /var/www/html/artisan migrate:fresh --seed --f
 - **Already fixed**: Changed to `npm install` in `Dockerfile.railway` (committed as `0f7168e`).
 - **Note**: `Dockerfile.local` was also updated to use `npm install --ignore-scripts` but not yet committed.
 
-### 5. Start Frontend Dev Server 🟡
-- Frontend dev server (`npm run dev`) was started but keeps dying because it's a long-running process in a shell session.
-- **Fix**: Run in background or as a Windows service: `Start-Process npm -ArgumentList run,dev -WorkingDirectory C:\Users\Windows\eduflow\frontend`
+### 5. Start Frontend Dev Server ✅
+Frontend is running on port 3000 (native Windows `npm run dev`, PID visible via `netstat -ano | grep :3000`). All three locales return 200:
+- `http://localhost:3000/en/login` → 200 `<html lang="en">`
+- `http://localhost:3000/es/login` → 200 `<html lang="es">`
+- `http://localhost:3000/pt-BR/login` → 200 `<html lang="pt-BR">`
+- `http://localhost:3000/` → 307 → `/en`
 
-### 6. Verify Full App Works Locally 🟡
-Once frontend is running:
-- Login at `http://localhost:3000`
-- Navigate dashboard, admissions, broadcast pages
-- Test API calls from frontend to backend
+### 6. Verify Full App Works Locally ✅
+Backend + frontend wired against Postgres (Docker). End-to-end verified:
+```bash
+# Login
+curl.exe -s -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" -H "Accept: application/json" \
+  -d '{"email":"admin@eduflow.test","password":"password"}'
+# → {"data":{"token":"1|...","user":{"id":"...","name":"Admin User",...}}}
+
+# Authenticated calls (all return real seeded data)
+curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/auth/me
+curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/stats
+curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/leads
+curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/students
+curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/sections
+curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/risk-alerts
+```
+CORS preflight from `http://localhost:3000` returns `Access-Control-Allow-Origin: http://localhost:3000` and `Access-Control-Allow-Credentials: true`. Logout revokes token (subsequent request → 401).
 
 ---
 
@@ -124,7 +153,18 @@ curl.exe -s -H "Accept: application/json" http://localhost:8000/api/stats
 | `frontend/Dockerfile.railway` | npm install instead of npm ci |
 | `frontend/Dockerfile.local` | npm install --ignore-scripts |
 
-All file changes are committed and pushed to GitHub.
+### New (April 19 evening — auth + risk-alerts + CORS)
+| File | What Changed |
+|------|-------------|
+| `backend/app/Http/Controllers/Api/AuthController.php` | **NEW** — login / me / logout with Sanctum |
+| `backend/app/Http/Controllers/Api/RiskAlertController.php` | **NEW** — index (paginated, status filter) + update |
+| `backend/config/cors.php` | **NEW** — allows localhost:3000 + FRONTEND_URL, credentials |
+| `backend/routes/api.php` | Added auth/login (public), auth/me, auth/logout, risk-alerts routes |
+| `backend/app/Models/RiskAlert.php` | Added `notes` fillable + `STATUS_RESOLVED` |
+| `backend/database/migrations/2024_01_02_000001_add_notes_and_resolved_to_risk_alerts.php` | **NEW** — adds `notes` column + expands status CHECK to include `resolved` |
+| `backend/database/migrations/2026_04_19_212003_create_personal_access_tokens_table.php` | **NEW** (Sanctum, published) — edited to use `uuidMorphs('tokenable')` for UUID User PKs |
+| `docker-compose.yml` | Mounted `./backend/config`, added CACHE_STORE=array / SESSION_DRIVER=array / SANCTUM_STATEFUL_DOMAINS / FRONTEND_URL env |
+| `frontend/app/login/page.tsx` | **DELETED** — leftover duplicate of `app/[locale]/login/page.tsx` |
 
 ---
 

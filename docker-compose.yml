@@ -26,6 +26,12 @@ services:
       APP_ENV: local
       APP_DEBUG: "true"
       APP_KEY: base64:J5XxKp9QnVZ3yQmNLx7Vh8Fv9LqYzT2a3xGc5P8B6kA=
+      # Use in-memory cache so we don't need the `cache` table for throttling.
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      # Sanctum reads this to allow stateful SPA sessions from the frontend.
+      SANCTUM_STATEFUL_DOMAINS: localhost:3000,127.0.0.1:3000
+      FRONTEND_URL: http://localhost:3000
     ports:
       - "8000:8000"
     depends_on:
@@ -37,6 +43,7 @@ services:
       - ./backend/public:/var/www/html/public
       - ./backend/resources:/var/www/html/resources
       - ./backend/storage:/var/www/html/storage
+      - ./backend/config:/var/www/html/config
 
   frontend:
     build:

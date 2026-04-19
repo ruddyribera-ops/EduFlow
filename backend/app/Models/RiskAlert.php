@@ -18,6 +18,7 @@ class RiskAlert extends Model
         'grade_drop_percentage',
         'risk_factors',
         'status',
+        'notes',
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class RiskAlert extends Model
     public const STATUS_PENDING = 'pending';
     public const STATUS_REVIEWED = 'reviewed';
     public const STATUS_ESCALATED = 'escalated';
+    public const STATUS_RESOLVED = 'resolved';
 
     public function student(): BelongsTo
     {

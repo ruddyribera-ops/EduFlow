@@ -8,12 +8,23 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| Auth (public login, stricter throttle)
 |--------------------------------------------------------------------------
-| Rate limited: 60 requests per minute per user.
-| Status updates: 10 requests per minute (stricter to prevent spam).
+*/
+Route::post('auth/login', [App\Http\Controllers\Api\AuthController::class, 'login'])
+    ->middleware('throttle:10,1')
+    ->name('auth.login');
+
+/*
+|--------------------------------------------------------------------------
+| API Routes (authenticated, 60/min)
+|--------------------------------------------------------------------------
 */
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    // Auth (protected)
+    Route::get('auth/me', [App\Http\Controllers\Api\AuthController::class, 'me'])->name('auth.me');
+    Route::post('auth/logout', [App\Http\Controllers\Api\AuthController::class, 'logout'])->name('auth.logout');
+
     // Leads
     Route::get('leads', [App\Http\Controllers\Api\LeadController::class, 'index'])
         ->name('leads.index');
@@ -26,6 +37,10 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 
     // Sections
     Route::get('sections', [App\Http\Controllers\Api\SectionController::class, 'index']);
+
+    // Risk alerts
+    Route::get('risk-alerts', [App\Http\Controllers\Api\RiskAlertController::class, 'index']);
+    Route::patch('risk-alerts/{riskAlert}', [App\Http\Controllers\Api\RiskAlertController::class, 'update']);
 });
 
 // Status updates - stricter rate limit (10/min) to prevent pipeline abuse
