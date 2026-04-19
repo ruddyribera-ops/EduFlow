@@ -10,7 +10,8 @@ WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json* ./
 
 # Install ALL dependencies (needed for build)
-RUN npm ci
+# Use npm install because package-lock.json may be out of sync with package.json
+RUN npm install
 
 # Copy source
 COPY frontend/ .
