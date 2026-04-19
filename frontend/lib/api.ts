@@ -28,7 +28,12 @@ export async function apiFetch<T>(
   });
 
   const text = await res.text();
-  const body = text ? JSON.parse(text) : null;
+  let body;
+  try {
+    body = text ? JSON.parse(text) : null;
+  } catch {
+    body = null;
+  }
 
   if (!res.ok) {
     const msg = (body && (body.message || body.error)) || `HTTP ${res.status}`;

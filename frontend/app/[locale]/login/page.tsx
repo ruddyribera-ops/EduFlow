@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { apiFetch, ApiError } from "@/lib/api";
 import { saveSession, getUser } from "@/lib/auth";
 import type { User } from "@/types";
-import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 
 interface LoginResponse {
@@ -29,10 +28,17 @@ export default function LoginPage() {
   const [email, setEmail] = useState("admin@eduflow.test");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    if (getUser()) router.replace(`/${locale}`);
+    if (getUser()) {
+      router.replace(`/${locale}`);
+    } else {
+      setCheckingAuth(false);
+    }
   }, [locale, router]);
+
+  if (checkingAuth) return null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
