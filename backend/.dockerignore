@@ -1,32 +1,10 @@
-# Dependencies
-/vendor/
-
-# Environment files
+vendor/
+node_modules/
 .env
-.env.local
-.env.*.local
-
-# Logs
-storage/logs/
-*.log
-
-# IDE
-.idea/
-.vscode/
-*.swp
-
-# Testing
+.env.backup
+.env.production
 .phpunit.result.cache
-coverage/
-
-# Docker
-Dockerfile
-docker-compose*.yml
-
-# Git
-.git/
-.gitignore
-
-# Misc
-*.tgz
-composer.lock
+phpunit.xml
+storage/*.key
+public/hot
+public/storage

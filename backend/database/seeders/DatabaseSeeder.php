@@ -76,9 +76,19 @@ class DatabaseSeeder extends Seeder
             'semester' => 'fall',
         ]);
 
-        // Assign teachers via pivot table (N:M relationship)
-        $section1->teachers()->attach($teacher1->id);
-        $section2->teachers()->attach($teacher2->id);
+        // Assign teachers via section_teacher pivot (composite PK, no auto-increment ID)
+        \Illuminate\Support\Facades\DB::table('section_teacher')->insert([
+            'section_id' => $section1->id,
+            'teacher_id' => $teacher1->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        \Illuminate\Support\Facades\DB::table('section_teacher')->insert([
+            'section_id' => $section2->id,
+            'teacher_id' => $teacher2->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         // Create students
         $student1 = Student::create([
@@ -108,9 +118,31 @@ class DatabaseSeeder extends Seeder
             'grade_level' => '5th',
         ]);
 
-        // Attach students to sections
-        $section1->students()->attach([$student1->id, $student2->id]);
-        $section2->students()->attach([$student2->id, $student3->id]);
+        // Attach students to sections via section_student pivot (composite PK - no auto-increment ID)
+        \Illuminate\Support\Facades\DB::table('section_student')->insert([
+            'section_id' => $section1->id,
+            'student_id' => $student1->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        \Illuminate\Support\Facades\DB::table('section_student')->insert([
+            'section_id' => $section1->id,
+            'student_id' => $student2->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        \Illuminate\Support\Facades\DB::table('section_student')->insert([
+            'section_id' => $section2->id,
+            'student_id' => $student2->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        \Illuminate\Support\Facades\DB::table('section_student')->insert([
+            'section_id' => $section2->id,
+            'student_id' => $student3->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         // Create guardians
         $guardian1 = Guardian::create([
@@ -143,22 +175,33 @@ class DatabaseSeeder extends Seeder
             'is_primary' => true,
         ]);
 
-        // Household relationships
-        $student1->guardians()->attach($guardian1->id, [
+        // Create guardian-student relationships via household_members (composite PK)
+        \Illuminate\Support\Facades\DB::table('household_members')->insert([
+            'student_id' => $student1->id,
+            'guardian_id' => $guardian1->id,
             'relationship_type' => 'Mother',
             'is_emergency_contact' => true,
             'can_pickup' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
-        $student1->guardians()->attach($guardian2->id, [
+        \Illuminate\Support\Facades\DB::table('household_members')->insert([
+            'student_id' => $student1->id,
+            'guardian_id' => $guardian2->id,
             'relationship_type' => 'Father',
             'is_emergency_contact' => false,
             'can_pickup' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
-
-        $student2->guardians()->attach($guardian3->id, [
+        \Illuminate\Support\Facades\DB::table('household_members')->insert([
+            'student_id' => $student2->id,
+            'guardian_id' => $guardian3->id,
             'relationship_type' => 'Mother',
             'is_emergency_contact' => true,
             'can_pickup' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         // Create enrollment leads
