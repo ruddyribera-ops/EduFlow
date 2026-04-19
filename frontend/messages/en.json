@@ -1,0 +1,133 @@
+{
+  "app": {
+    "title": "EduFlow",
+    "subtitle": "School CRM"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "admissions": "Admissions",
+    "students": "Students",
+    "sections": "Sections",
+    "riskAlerts": "Risk Alerts",
+    "broadcast": "Broadcast",
+    "signOut": "Sign out →"
+  },
+  "login": {
+    "title": "EduFlow",
+    "subtitle": "Sign in to your school CRM",
+    "email": "Email",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "error": "Login failed",
+    "demoAccounts": "Demo accounts (click to use):"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "School-wide overview",
+    "activeLeads": "Active Leads",
+    "totalInPipeline": "total in pipeline",
+    "enrolledStudents": "Enrolled Students",
+    "totalStudents": "total students",
+    "sections": "Sections",
+    "currentSemester": "Current semester",
+    "pendingRiskAlerts": "Pending Risk Alerts",
+    "totalAlerts": "total alerts",
+    "pipeline": "Admissions Pipeline",
+    "openKanban": "Open Kanban →",
+    "quickActions": "Quick Actions",
+    "sendBroadcast": "Send Emergency Broadcast",
+    "reviewAlerts": "Review Pending Alerts",
+    "browseStudents": "Browse Students"
+  },
+  "admissions": {
+    "title": "Admissions Pipeline",
+    "totalLeads": "total leads"
+  },
+  "students": {
+    "title": "Students",
+    "total": "total",
+    "filters": {
+      "gradeLevel": "Grade level",
+      "allGrades": "All grades",
+      "enrollmentStatus": "Enrollment status",
+      "allStatuses": "All statuses",
+      "clearFilters": "Clear filters"
+    },
+    "table": {
+      "name": "Name",
+      "grade": "Grade",
+      "status": "Status",
+      "section": "Section",
+      "guardians": "Guardians",
+      "view": "View →",
+      "noResults": "No students match filters."
+    },
+    "detail": {
+      "backToStudents": "← Back to students",
+      "birthDate": "Born",
+      "section": "Section",
+      "notAssigned": "Not assigned to a section.",
+      "teacher": "Teacher",
+      "counselor": "Counselor",
+      "guardians": "Guardians",
+      "noGuardians": "No guardians registered.",
+      "contact": "Contact:",
+      "relationship": "({{relationship}})"
+    }
+  },
+  "sections": {
+    "title": "Sections",
+    "sections": "sections",
+    "grade": "Grade",
+    "room": "Room",
+    "students": "Students",
+    "teacher": "Teacher",
+    "counselor": "Counselor",
+    "noSections": "No sections yet."
+  },
+  "riskAlerts": {
+    "title": "Risk Alerts",
+    "subtitle": "AI-flagged students needing attention",
+    "allStatuses": "All statuses",
+    "pending": "Pending",
+    "reviewed": "Reviewed",
+    "resolved": "Resolved",
+    "detected": "Detected",
+    "markReviewed": "Mark reviewed",
+    "resolve": "Resolve",
+    "attendance": "Attendance",
+    "gradeDrop": "Grade drop",
+    "noAlerts": "No alerts."
+  },
+  "broadcast": {
+    "title": "Emergency Broadcast",
+    "subtitle": "Notifies guardians via email/SMS based on each guardian's communication preference.",
+    "message": "Message",
+    "messagePlaceholder": "e.g. School closure tomorrow due to weather.",
+    "target": "Target",
+    "allGuardians": "All guardians (school-wide)",
+    "specificStudents": "Specific students",
+    "selectStudents": "Select students",
+    "send": "Send broadcast",
+    "sending": "Sending…",
+    "success": "Broadcast sent!",
+    "recipients": "Recipients",
+    "emails": "Emails",
+    "sms": "SMS",
+    "skipped": "Skipped",
+    "recent": "Recent broadcasts"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Error",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "close": "Close",
+    "back": "Back",
+    "noPhone": "No phone",
+    "emailOnly": "Email only",
+    "smsOnly": "SMS only",
+    "both": "Email + SMS"
+  }
+}

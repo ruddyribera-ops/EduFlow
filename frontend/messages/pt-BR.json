@@ -1,0 +1,133 @@
+{
+  "app": {
+    "title": "EduFlow",
+    "subtitle": "CRM Escolar"
+  },
+  "nav": {
+    "dashboard": "Painel",
+    "admissions": "Admissões",
+    "students": "Alunos",
+    "sections": "Turmas",
+    "riskAlerts": "Alertas de Risco",
+    "broadcast": "Broadcast",
+    "signOut": "Sair →"
+  },
+  "login": {
+    "title": "EduFlow",
+    "subtitle": "Faça login no seu CRM escolar",
+    "email": "Email",
+    "signIn": "Fazer login",
+    "signingIn": "Entrando…",
+    "error": "Falha no login",
+    "demoAccounts": "Contas demo (clique para usar):"
+  },
+  "dashboard": {
+    "title": "Painel",
+    "subtitle": "Visão geral da escola",
+    "activeLeads": "Leads Ativos",
+    "totalInPipeline": "total no pipeline",
+    "enrolledStudents": "Alunos Matriculados",
+    "totalStudents": "total de alunos",
+    "sections": "Turmas",
+    "currentSemester": "Semestre atual",
+    "pendingRiskAlerts": "Alertas Pendentes",
+    "totalAlerts": "total de alertas",
+    "pipeline": "Pipeline de Admissões",
+    "openKanban": "Abrir Kanban →",
+    "quickActions": "Ações Rápidas",
+    "sendBroadcast": "Enviar Broadcast de Emergência",
+    "reviewAlerts": "Revisar Alertas Pendentes",
+    "browseStudents": "Navegar Alunos"
+  },
+  "admissions": {
+    "title": "Pipeline de Admissões",
+    "totalLeads": "total de leads"
+  },
+  "students": {
+    "title": "Alunos",
+    "total": "total",
+    "filters": {
+      "gradeLevel": "Série",
+      "allGrades": "Todas as séries",
+      "enrollmentStatus": "Status de matrícula",
+      "allStatuses": "Todos os status",
+      "clearFilters": "Limpar filtros"
+    },
+    "table": {
+      "name": "Nome",
+      "grade": "Série",
+      "status": "Status",
+      "section": "Turma",
+      "guardians": "Responsáveis",
+      "view": "Ver →",
+      "noResults": "Nenhum aluno corresponde aos filtros."
+    },
+    "detail": {
+      "backToStudents": "← Voltar para alunos",
+      "birthDate": "Nascimento",
+      "section": "Turma",
+      "notAssigned": "Não atribuído a uma turma.",
+      "teacher": "Professor",
+      "counselor": "Orientador",
+      "guardians": "Responsáveis",
+      "noGuardians": "Sem responsáveis registrados.",
+      "contact": "Contato:",
+      "relationship": "({{relationship}})"
+    }
+  },
+  "sections": {
+    "title": "Turmas",
+    "sections": "turmas",
+    "grade": "Série",
+    "room": "Sala",
+    "students": "Alunos",
+    "teacher": "Professor",
+    "counselor": "Orientador",
+    "noSections": "Nenhuma turma ainda."
+  },
+  "riskAlerts": {
+    "title": "Alertas de Risco",
+    "subtitle": "Alunos sinalizados por IA que precisam de atenção",
+    "allStatuses": "Todos os status",
+    "pending": "Pendente",
+    "reviewed": "Revisado",
+    "resolved": "Resolvido",
+    "detected": "Detectado",
+    "markReviewed": "Marcar como revisado",
+    "resolve": "Resolver",
+    "attendance": "Frequência",
+    "gradeDrop": "Queda de notas",
+    "noAlerts": "Sem alertas."
+  },
+  "broadcast": {
+    "title": "Broadcast de Emergência",
+    "subtitle": "Notifica responsáveis por email/SMS de acordo com sua preferência de comunicação.",
+    "message": "Mensagem",
+    "messagePlaceholder": "ex. Fechamento da escola amanhã por tempo.",
+    "target": "Alvo",
+    "allGuardians": "Todos os responsáveis (toda a escola)",
+    "specificStudents": "Alunos específicos",
+    "selectStudents": "Selecionar alunos",
+    "send": "Enviar broadcast",
+    "sending": "Enviando…",
+    "success": "Broadcast enviado!",
+    "recipients": "Destinatários",
+    "emails": "Emails",
+    "sms": "SMS",
+    "skipped": "Ignorado",
+    "recent": "Broadcasts recentes"
+  },
+  "common": {
+    "loading": "Carregando…",
+    "error": "Erro",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Deletar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "noPhone": "Sem telefone",
+    "emailOnly": "Apenas email",
+    "smsOnly": "Apenas SMS",
+    "both": "Email + SMS"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "app": {
+    "title": "EduFlow",
+    "subtitle": "CRM Escolar"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "admissions": "Admisiones",
+    "students": "Estudiantes",
+    "sections": "Secciones",
+    "riskAlerts": "Alertas de Riesgo",
+    "broadcast": "Broadcast",
+    "signOut": "Cerrar sesión →"
+  },
+  "login": {
+    "title": "EduFlow",
+    "subtitle": "Inicia sesión en tu CRM escolar",
+    "email": "Correo electrónico",
+    "signIn": "Iniciar sesión",
+    "signingIn": "Iniciando sesión…",
+    "error": "Error en el inicio de sesión",
+    "demoAccounts": "Cuentas de demostración (haz clic para usar):"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "subtitle": "Descripción general de la escuela",
+    "activeLeads": "Leads Activos",
+    "totalInPipeline": "total en el pipeline",
+    "enrolledStudents": "Estudiantes Inscritos",
+    "totalStudents": "total de estudiantes",
+    "sections": "Secciones",
+    "currentSemester": "Semestre actual",
+    "pendingRiskAlerts": "Alertas Pendientes",
+    "totalAlerts": "total de alertas",
+    "pipeline": "Pipeline de Admisiones",
+    "openKanban": "Abrir Kanban →",
+    "quickActions": "Acciones Rápidas",
+    "sendBroadcast": "Enviar Broadcast de Emergencia",
+    "reviewAlerts": "Revisar Alertas Pendientes",
+    "browseStudents": "Ver Estudiantes"
+  },
+  "admissions": {
+    "title": "Pipeline de Admisiones",
+    "totalLeads": "total de leads"
+  },
+  "students": {
+    "title": "Estudiantes",
+    "total": "total",
+    "filters": {
+      "gradeLevel": "Grado",
+      "allGrades": "Todos los grados",
+      "enrollmentStatus": "Estado de inscripción",
+      "allStatuses": "Todos los estados",
+      "clearFilters": "Limpiar filtros"
+    },
+    "table": {
+      "name": "Nombre",
+      "grade": "Grado",
+      "status": "Estado",
+      "section": "Sección",
+      "guardians": "Tutores",
+      "view": "Ver →",
+      "noResults": "Ningún estudiante coincide con los filtros."
+    },
+    "detail": {
+      "backToStudents": "← Volver a estudiantes",
+      "birthDate": "Nació",
+      "section": "Sección",
+      "notAssigned": "No asignado a una sección.",
+      "teacher": "Profesor",
+      "counselor": "Consejero",
+      "guardians": "Tutores",
+      "noGuardians": "Sin tutores registrados.",
+      "contact": "Contacto:",
+      "relationship": "({{relationship}})"
+    }
+  },
+  "sections": {
+    "title": "Secciones",
+    "sections": "secciones",
+    "grade": "Grado",
+    "room": "Aula",
+    "students": "Estudiantes",
+    "teacher": "Profesor",
+    "counselor": "Consejero",
+    "noSections": "Sin secciones aún."
+  },
+  "riskAlerts": {
+    "title": "Alertas de Riesgo",
+    "subtitle": "Estudiantes identificados por IA que necesitan atención",
+    "allStatuses": "Todos los estados",
+    "pending": "Pendiente",
+    "reviewed": "Revisado",
+    "resolved": "Resuelto",
+    "detected": "Detectado",
+    "markReviewed": "Marcar como revisado",
+    "resolve": "Resolver",
+    "attendance": "Asistencia",
+    "gradeDrop": "Caída de calificaciones",
+    "noAlerts": "Sin alertas."
+  },
+  "broadcast": {
+    "title": "Broadcast de Emergencia",
+    "subtitle": "Notifica a los tutores por correo electrónico/SMS según su preferencia de comunicación.",
+    "message": "Mensaje",
+    "messagePlaceholder": "ej. Cierre de la escuela mañana por clima.",
+    "target": "Objetivo",
+    "allGuardians": "Todos los tutores (toda la escuela)",
+    "specificStudents": "Estudiantes específicos",
+    "selectStudents": "Seleccionar estudiantes",
+    "send": "Enviar broadcast",
+    "sending": "Enviando…",
+    "success": "¡Broadcast enviado!",
+    "recipients": "Destinatarios",
+    "emails": "Correos",
+    "sms": "SMS",
+    "skipped": "Omitido",
+    "recent": "Broadcasts recientes"
+  },
+  "common": {
+    "loading": "Cargando…",
+    "error": "Error",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "noPhone": "Sin teléfono",
+    "emailOnly": "Solo correo",
+    "smsOnly": "Solo SMS",
+    "both": "Correo + SMS"
+  }
+}
