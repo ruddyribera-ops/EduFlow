@@ -33,3 +33,12 @@ Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
     Route::patch('leads/{lead}/status', [App\Http\Controllers\Api\LeadController::class, 'updateStatus'])
         ->name('leads.status.update');
 });
+
+// Dashboard stats
+Route::middleware(['auth:sanctum'])->get('stats', [App\Http\Controllers\Api\StatsController::class, 'dashboard']);
+
+// Emergency broadcasts
+Route::middleware(['auth:sanctum', 'throttle:5,1'])->group(function () {
+    Route::get('broadcasts', [App\Http\Controllers\Api\BroadcastController::class, 'index']);
+    Route::post('broadcasts', [App\Http\Controllers\Api\BroadcastController::class, 'store']);
+});
