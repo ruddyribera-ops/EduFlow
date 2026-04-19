@@ -1,10 +1,10 @@
 # EduFlow Backend - Railway Production Dockerfile
 # Multi-stage build optimized for Railway deployment
+# Root Directory in Railway must be set to: backend
 
 FROM php:8.3-fpm-alpine AS builder
 
 # Install system dependencies
-# Note: Alpine uses different package names
 RUN apk add --no-cache \
     git \
     curl \
@@ -27,13 +27,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 
 # Copy composer files first (layer caching)
-COPY backend/composer.json backend/composer.lock* ./
+COPY composer.json composer.lock* ./
 
-# Install dependencies (--no-scripts to skip post-install scripts that need artisan)
+# Install dependencies
 RUN composer install --no-interaction --no-dev --no-scripts --prefer-dist --optimize-autoloader --ignore-platform-reqs
 
 # Copy application source
-COPY backend/ .
+COPY . .
 
 # Generate optimized autoload
 RUN composer dump-autoload --optimize --no-scripts --ignore-platform-reqs
@@ -70,13 +70,10 @@ COPY --from=builder /app/routes ./routes
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/resources ./resources
 
-# Create storage directory (not copied from builder since it doesn't exist in source)
+# Create storage directory
 RUN mkdir -p /app/storage/app/public /app/storage/framework/{cache,sessions,testing,views} /app/storage/logs /app/bootstrap/cache
 RUN chown -R www:www /app/storage /app/bootstrap/cache
 RUN chmod -R 775 /app/storage /app/bootstrap/cache
-
-# Copy env file (will be overridden by Railway env vars)
-COPY backend/.env.example .env
 
 USER www
 
