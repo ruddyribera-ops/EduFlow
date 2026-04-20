@@ -10,6 +10,7 @@
     "sections": "Turmas",
     "riskAlerts": "Alertas de Risco",
     "broadcast": "Broadcast",
+    "users": "Usuários",
     "signOut": "Sair →"
   },
   "login": {
@@ -41,11 +42,30 @@
   },
   "admissions": {
     "title": "Pipeline de Admissões",
-    "totalLeads": "total de leads"
+    "totalLeads": "total de leads",
+    "addLead": "+ Novo lead",
+    "editLead": "Editar lead",
+    "deleteLead": "Excluir lead",
+    "confirmDelete": "Tem certeza de que deseja excluir {name}? Isso não pode ser desfeito."
+  },
+  "leads": {
+    "form": {
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "email": "Email",
+      "phone": "Telefone",
+      "sourceCampaign": "Campanha",
+      "sourceCampaignPlaceholder": "ex. Portas Abertas 2026",
+      "notes": "Notas",
+      "notesPlaceholder": "Informações adicionais..."
+    }
   },
   "students": {
     "title": "Alunos",
     "total": "total",
+    "add": "+ Adicionar aluno",
+    "edit": "Editar aluno",
+    "delete": "Excluir aluno",
     "filters": {
       "gradeLevel": "Série",
       "allGrades": "Todas as séries",
@@ -62,6 +82,16 @@
       "view": "Ver →",
       "noResults": "Nenhum aluno corresponde aos filtros."
     },
+    "form": {
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "dateOfBirth": "Data de nascimento",
+      "gradeLevel": "Série",
+      "enrollmentStatus": "Status de matrícula",
+      "section": "Turma",
+      "noSection": "Sem turma",
+      "selectSection": "Selecionar turma"
+    },
     "detail": {
       "backToStudents": "← Voltar para alunos",
       "birthDate": "Nascimento",
@@ -72,8 +102,15 @@
       "guardians": "Responsáveis",
       "noGuardians": "Sem responsáveis registrados.",
       "contact": "Contato:",
-      "relationship": "({{relationship}})"
-    }
+      "relationship": "({{relationship}})",
+      "addGuardian": "+ Adicionar responsável",
+      "removeGuardian": "Remover",
+      "confirmRemoveGuardian": "Remover \"{name}\" como responsável deste aluno? Isto não exclui o registro do responsável.",
+      "riskHistory": "Histórico de risco",
+      "viewAllAlerts": "Ver todas",
+      "noRiskAlerts": "Sem alertas de risco para este aluno."
+    },
+    "confirmDelete": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita."
   },
   "sections": {
     "title": "Turmas",
@@ -81,9 +118,43 @@
     "grade": "Série",
     "room": "Sala",
     "students": "Alunos",
+    "teachers": "Professores",
     "teacher": "Professor",
     "counselor": "Orientador",
-    "noSections": "Nenhuma turma ainda."
+    "noSections": "Nenhuma turma ainda.",
+    "add": "+ Nova turma",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "manageRoster": "Gerenciar lista",
+    "form": {
+      "name": "Nome da turma",
+      "gradeLevel": "Série",
+      "semester": "Semestre",
+      "room": "Sala (opcional)",
+      "counselor": "Orientador"
+    },
+    "assigned": "Atribuídos",
+    "addStudent": "Adicionar aluno",
+    "addTeacher": "Adicionar professor",
+    "searchStudent": "Buscar alunos…",
+    "searchTeacher": "Buscar professores…",
+    "noStudentsAssigned": "Sem alunos atribuídos.",
+    "noTeachersAssigned": "Sem professores atribuídos.",
+    "noStudentsAvailable": "Nenhum aluno disponível.",
+    "noTeachersAvailable": "Nenhum professor disponível.",
+    "remove": "Remover",
+    "confirmDelete": "Tem certeza de que deseja excluir \"{name}\"? Isso não pode ser desfeito."
+  },
+  "guardians": {
+    "title": "Responsáveis",
+    "form": {
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "email": "Email",
+      "phone": "Telefone",
+      "communicationPreference": "Preferência de comunicação",
+      "relationshipType": "Relação"
+    }
   },
   "riskAlerts": {
     "title": "Alertas de Risco",
@@ -97,7 +168,21 @@
     "resolve": "Resolver",
     "attendance": "Frequência",
     "gradeDrop": "Queda de notas",
-    "noAlerts": "Sem alertas."
+    "noAlerts": "Sem alertas.",
+    "raiseAlert": "+ Gerar alerta",
+    "raise": "Gerar alerta",
+    "student": "Aluno",
+    "selectStudent": "Selecionar aluno",
+    "attendanceRate": "Taxa de frequência (%)",
+    "gradeDropRate": "Taxa de queda de notas (%)",
+    "riskFactors": "Fatores de risco",
+    "lowAttendance": "Baixa frequência",
+    "gradeDecline": "Queda de notas",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas adicionais...",
+    "noNotes": "Sem notas — clique para adicionar",
+    "clickToEditNotes": "Clique para editar notas",
+    "fillAllFields": "Por favor preencha todos os campos obrigatórios."
   },
   "broadcast": {
     "title": "Broadcast de Emergência",
@@ -122,12 +207,58 @@
     "error": "Erro",
     "cancel": "Cancelar",
     "save": "Salvar",
-    "delete": "Deletar",
+    "delete": "Excluir",
     "close": "Fechar",
     "back": "Voltar",
     "noPhone": "Sem telefone",
     "emailOnly": "Apenas email",
     "smsOnly": "Apenas SMS",
     "both": "Email + SMS"
+  },
+  "profile": {
+    "title": "Meu Perfil",
+    "profileInfo": "Informações do perfil",
+    "changePassword": "Alterar senha",
+    "saved": "Perfil salvo.",
+    "passwordChanged": "Senha alterada com sucesso.",
+    "emailChangedNotice": "Seu email foi alterado. Por favor, entre novamente com seu novo email.",
+    "relogin": "Entrar novamente",
+    "updatePassword": "Atualizar senha",
+    "passwordMismatch": "A nova senha e a confirmação não coincidem.",
+    "form": {
+      "name": "Nome",
+      "email": "Email",
+      "currentPassword": "Senha atual",
+      "newPassword": "Nova senha",
+      "confirmPassword": "Confirmar nova senha"
+    }
+  },
+  "users": {
+    "title": "Usuários",
+    "total": "total",
+    "add": "+ Adicionar usuário",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "resetPassword": "Redefinir senha",
+    "table": {
+      "name": "Nome",
+      "email": "Email",
+      "role": "Função",
+      "createdAt": "Criado em"
+    },
+    "form": {
+      "name": "Nome",
+      "email": "Email",
+      "role": "Função",
+      "password": "Senha",
+      "newPassword": "Nova senha",
+      "minChars": "mín. 8 caracteres"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "counselor": "Orientador",
+      "teacher": "Professor"
+    },
+    "confirmDelete": "Tem certeza de que deseja excluir \"{name}\"? Esta ação não pode ser desfeita."
   }
 }

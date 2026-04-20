@@ -48,6 +48,7 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  created_at: string;
 }
 
 export interface Section {
@@ -60,6 +61,8 @@ export interface Section {
   counselor_id: string | null;
   teacher?: User | null;
   counselor?: User | null;
+  students?: Student[];
+  teachers?: User[];
   students_count?: number;
 }
 
@@ -68,6 +71,7 @@ export interface Student {
   first_name: string;
   last_name: string;
   date_of_birth: string | null;
+  dob?: string | null;
   grade_level: string;
   enrollment_status: EnrollmentStatus;
   section_id: string | null;
@@ -88,6 +92,7 @@ export interface RiskAlert {
   created_at: string;
   reviewed_at: string | null;
   notes: string | null;
+  counselor_id?: string;
   student?: Pick<Student, "id" | "first_name" | "last_name" | "grade_level"> | null;
 }
 

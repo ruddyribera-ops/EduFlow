@@ -39,6 +39,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: `/${locale}/sections`, label: t("nav.sections"), icon: "▤", match: (p: string) => p.includes("/sections") },
     { href: `/${locale}/risk-alerts`, label: t("nav.riskAlerts"), icon: "⚠", match: (p: string) => p.includes("/risk-alerts") },
     { href: `/${locale}/broadcast`, label: t("nav.broadcast"), icon: "◈", match: (p: string) => p.includes("/broadcast") },
+    ...(user?.role === "admin"
+      ? [{ href: `/${locale}/users`, label: t("nav.users"), icon: "▣", match: (p: string) => p.includes("/users") }]
+      : []),
   ];
 
   if (!ready) {
@@ -72,7 +75,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-3 border-t border-slate-700 space-y-3">
           <LanguageSwitcher />
           <div>
-            <div className="text-xs font-medium text-white">{user?.name}</div>
+            <div className="text-xs font-medium text-white">
+              <Link href={`/${locale}/profile`} className="hover:text-slate-200">
+                {user?.name}
+              </Link>
+            </div>
             <div className="text-xs text-slate-400 capitalize">{user?.role}</div>
             <button
               onClick={handleLogout}

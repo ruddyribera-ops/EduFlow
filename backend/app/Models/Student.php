@@ -20,7 +20,10 @@ class Student extends Model
         'enrollment_status',
         'grade_level',
         'household_id',
+        'section_id',
     ];
+
+    protected $appends = ['date_of_birth'];
 
     protected $casts = [
         'dob' => 'date',
@@ -50,11 +53,16 @@ class Student extends Model
 
     public function riskAlerts(): HasMany
     {
-        return $this->hasMany(RiskAlert::class);
+        return $this->hasMany(RiskAlert::class)->orderBy('created_at', 'desc');
     }
 
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    public function getDateOfBirthAttribute(): ?string
+    {
+        return $this->dob?->format('Y-m-d');
     }
 }

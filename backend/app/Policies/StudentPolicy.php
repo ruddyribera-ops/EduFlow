@@ -2,13 +2,13 @@
 
 namespace App\Policies;
 
-use App\Models\Section;
+use App\Models\Student;
 use App\Models\User;
 
-class SectionPolicy
+class StudentPolicy
 {
     /**
-     * Admin and counselor can create sections.
+     * Admin and counselor can create students.
      */
     public function create(User $user): bool
     {
@@ -16,23 +16,23 @@ class SectionPolicy
     }
 
     /**
-     * Admin and counselor can update sections.
+     * Admin and counselor can update students.
      */
-    public function update(User $user, Section $section): bool
+    public function update(User $user, Student $student): bool
     {
         return in_array($user->role, [User::ROLE_ADMIN, User::ROLE_COUNSELOR]);
     }
 
     /**
-     * Admin and counselor can delete sections.
+     * Admin and counselor can delete students.
      */
-    public function delete(User $user, Section $section): bool
+    public function delete(User $user, Student $student): bool
     {
         return in_array($user->role, [User::ROLE_ADMIN, User::ROLE_COUNSELOR]);
     }
 
     /**
-     * Any authenticated user can view sections.
+     * Any authenticated user can view a student.
      */
     public function viewAny(User $user): bool
     {
@@ -40,9 +40,9 @@ class SectionPolicy
     }
 
     /**
-     * Any authenticated user can view a section.
+     * Any authenticated user can view a student.
      */
-    public function view(User $user, Section $section): bool
+    public function view(User $user, Student $student): bool
     {
         return true;
     }

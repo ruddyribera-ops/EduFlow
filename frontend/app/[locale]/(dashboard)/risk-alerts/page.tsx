@@ -5,7 +5,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { apiFetch, swrFetcher, ApiError } from "@/lib/api";
-import type { ApiListResponse, ApiResource, RiskAlert, RiskFactor, RiskStatus } from "@/types";
+import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
+import { FormField } from "@/components/ui/FormField";
+import { Input } from "@/components/ui/Input";
+import type { ApiListResponse, ApiResource, RiskAlert, RiskFactor, RiskStatus, Student } from "@/types";
 
 const FACTOR_LABEL: Record<RiskFactor, string> = {
   low_attendance: "riskAlerts.attendance",
@@ -26,6 +31,64 @@ export default function RiskAlertsPage() {
   const { data, error, isLoading } = useSWR<ApiListResponse<RiskAlert>>(key, swrFetcher);
   const [updating, setUpdating] = useState<string | null>(null);
 
+  // Raise alert modal
+  const [raiseModal, setRaiseModal] = useState(false);
+  const [studentsData, setStudentsData] = useState<Student[]>([]);
+  const [raiseForm, setRaiseForm] = useState({
+    student_id: "",
+    attendance_rate: "",
+    grade_drop_percentage: "",
+    risk_factors: [] as RiskFactor[],
+    notes: "",
+  });
+  const [raiseError, setRaiseError] = useState<string | null>(null);
+  const [raising, setRaising] = useState(false);
+
+  // Inline notes editing
+  const [editingNotes, setEditingNotes] = useState<string | null>(null);
+  const [notesValue, setNotesValue] = useState("");
+  const [savingNotes, setSavingNotes] = useState<string | null>(null);
+
+  // Fetch student list for raise alert modal
+  async function openRaiseModal() {
+    setRaiseError(null);
+    setRaiseForm({ student_id: "", attendance_rate: "", grade_drop_percentage: "", risk_factors: [], notes: "" });
+    try {
+      const res = await apiFetch<ApiListResponse<Student>>("/students");
+      setStudentsData(res.data);
+      setRaiseModal(true);
+    } catch {
+      setRaiseError(t("common.error"));
+    }
+  }
+
+  async function handleRaiseAlert() {
+    if (!raiseForm.student_id || !raiseForm.attendance_rate || !raiseForm.grade_drop_percentage || raiseForm.risk_factors.length === 0) {
+      setRaiseError(t("riskAlerts.fillAllFields"));
+      return;
+    }
+    setRaising(true);
+    setRaiseError(null);
+    try {
+      await apiFetch<ApiResource<RiskAlert>>("/risk-alerts", {
+        method: "POST",
+        body: JSON.stringify({
+          student_id: raiseForm.student_id,
+          attendance_rate: parseFloat(raiseForm.attendance_rate) / 100,
+          grade_drop_percentage: parseFloat(raiseForm.grade_drop_percentage) / 100,
+          risk_factors: raiseForm.risk_factors,
+          notes: raiseForm.notes || undefined,
+        }),
+      });
+      mutate(key);
+      setRaiseModal(false);
+    } catch (err) {
+      setRaiseError(err instanceof ApiError ? err.message : t("common.error"));
+    } finally {
+      setRaising(false);
+    }
+  }
+
   async function updateStatus(id: string, status: RiskStatus) {
     setUpdating(id);
     try {
@@ -41,6 +104,41 @@ export default function RiskAlertsPage() {
     }
   }
 
+  function startEditNotes(alert: RiskAlert) {
+    setEditingNotes(alert.id);
+    setNotesValue(alert.notes ?? "");
+  }
+
+  async function saveNotes(id: string) {
+    setSavingNotes(id);
+    try {
+      await apiFetch<ApiResource<RiskAlert>>(`/risk-alerts/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ notes: notesValue }),
+      });
+      mutate(key);
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : t("common.error"));
+    } finally {
+      setSavingNotes(null);
+      setEditingNotes(null);
+    }
+  }
+
+  function toggleFactor(f: RiskFactor) {
+    setRaiseForm((prev) => ({
+      ...prev,
+      risk_factors: prev.risk_factors.includes(f)
+        ? prev.risk_factors.filter((x) => x !== f)
+        : [...prev.risk_factors, f],
+    }));
+  }
+
+  const studentOptions = studentsData.map((s) => ({
+    value: s.id,
+    label: `${s.first_name} ${s.last_name} (${s.grade_level})`,
+  }));
+
   return (
     <div className="p-6 space-y-5">
       <div className="flex items-start justify-between">
@@ -48,16 +146,19 @@ export default function RiskAlertsPage() {
           <h1 className="text-2xl font-bold text-slate-900">{t("riskAlerts.title")}</h1>
           <p className="text-sm text-slate-500 mt-1">{t("riskAlerts.subtitle")}</p>
         </div>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as "" | RiskStatus)}
-          className="border border-slate-300 rounded px-3 py-1.5 text-sm"
-        >
-          <option value="">{t("riskAlerts.allStatuses")}</option>
-          <option value="pending">{t("riskAlerts.pending")}</option>
-          <option value="reviewed">{t("riskAlerts.reviewed")}</option>
-          <option value="resolved">{t("riskAlerts.resolved")}</option>
-        </select>
+        <div className="flex items-center gap-3">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as "" | RiskStatus)}
+            className="border border-slate-300 rounded px-3 py-1.5 text-sm"
+          >
+            <option value="">{t("riskAlerts.allStatuses")}</option>
+            <option value="pending">{t("riskAlerts.pending")}</option>
+            <option value="reviewed">{t("riskAlerts.reviewed")}</option>
+            <option value="resolved">{t("riskAlerts.resolved")}</option>
+          </select>
+          <Button onClick={openRaiseModal}>{t("riskAlerts.raiseAlert")}</Button>
+        </div>
       </div>
 
       {isLoading && <div className="text-slate-500">{t("common.loading")}</div>}
@@ -96,14 +197,47 @@ export default function RiskAlertsPage() {
                     )}
                   </div>
 
-                  {alert.notes && (
-                    <div className="mt-2 text-sm text-slate-700 bg-slate-50 rounded p-2">
-                      {alert.notes}
-                    </div>
-                  )}
+                  {/* Inline notes */}
+                  <div className="mt-2">
+                    {editingNotes === alert.id ? (
+                      <div className="flex gap-2">
+                        <textarea
+                          className="flex-1 border border-slate-300 rounded px-2 py-1 text-sm"
+                          rows={2}
+                          value={notesValue}
+                          onChange={(e) => setNotesValue(e.target.value)}
+                          placeholder={t("riskAlerts.notesPlaceholder")}
+                          autoFocus
+                        />
+                        <div className="flex flex-col gap-1">
+                          <button
+                            disabled={savingNotes === alert.id}
+                            onClick={() => saveNotes(alert.id)}
+                            className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
+                          >
+                            {savingNotes === alert.id ? t("common.loading") : t("common.save")}
+                          </button>
+                          <button
+                            onClick={() => setEditingNotes(null)}
+                            className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1"
+                          >
+                            {t("common.cancel")}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className="text-sm text-slate-700 bg-slate-50 rounded p-2 cursor-pointer hover:bg-slate-100"
+                        onClick={() => startEditNotes(alert)}
+                        title={t("riskAlerts.clickToEditNotes")}
+                      >
+                        {alert.notes || <span className="text-slate-400 italic">{t("riskAlerts.noNotes")}</span>}
+                      </div>
+                    )}
+                  </div>
 
                   <div className="mt-2 text-xs text-slate-400">
-                    {t("riskAlerts.detected")} {new Date(alert.created_at).toLocaleString()}
+                    {t("riskAlerts.detected")} {new Date(alert.created_at).toLocaleDateString()}
                   </div>
                 </div>
 
@@ -135,6 +269,81 @@ export default function RiskAlertsPage() {
           )}
         </div>
       )}
+
+      {/* Raise Alert Modal */}
+      <Modal
+        open={raiseModal}
+        onClose={() => setRaiseModal(false)}
+        title={t("riskAlerts.raiseAlert")}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setRaiseModal(false)}>{t("common.cancel")}</Button>
+            <Button onClick={handleRaiseAlert} loading={raising}>{t("riskAlerts.raise")}</Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          {raiseError && <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">{raiseError}</div>}
+          <FormField label={t("riskAlerts.student")}>
+            <Select
+              value={raiseForm.student_id}
+              onChange={(e) => setRaiseForm((f) => ({ ...f, student_id: e.target.value }))}
+              options={[{ value: "", label: t("riskAlerts.selectStudent") }, ...studentOptions]}
+            />
+          </FormField>
+          <div className="grid grid-cols-2 gap-3">
+            <FormField label={t("riskAlerts.attendanceRate")}>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={raiseForm.attendance_rate}
+                onChange={(e) => setRaiseForm((f) => ({ ...f, attendance_rate: e.target.value }))}
+                placeholder="e.g. 75"
+              />
+            </FormField>
+            <FormField label={t("riskAlerts.gradeDropRate")}>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={raiseForm.grade_drop_percentage}
+                onChange={(e) => setRaiseForm((f) => ({ ...f, grade_drop_percentage: e.target.value }))}
+                placeholder="e.g. 20"
+              />
+            </FormField>
+          </div>
+          <FormField label={t("riskAlerts.riskFactors")}>
+            <div className="flex gap-3 mt-1">
+              <label className="flex items-center gap-1.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={raiseForm.risk_factors.includes("low_attendance")}
+                  onChange={() => toggleFactor("low_attendance")}
+                />
+                {t("riskAlerts.lowAttendance")}
+              </label>
+              <label className="flex items-center gap-1.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={raiseForm.risk_factors.includes("grade_decline")}
+                  onChange={() => toggleFactor("grade_decline")}
+                />
+                {t("riskAlerts.gradeDecline")}
+              </label>
+            </div>
+          </FormField>
+          <FormField label={t("riskAlerts.notes")}>
+            <textarea
+              className="w-full border border-slate-300 rounded px-3 py-2 text-sm"
+              rows={3}
+              value={raiseForm.notes}
+              onChange={(e) => setRaiseForm((f) => ({ ...f, notes: e.target.value }))}
+              placeholder={t("riskAlerts.notesPlaceholder")}
+            />
+          </FormField>
+        </div>
+      </Modal>
     </div>
   );
 }

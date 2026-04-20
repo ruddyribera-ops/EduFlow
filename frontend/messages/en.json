@@ -10,6 +10,7 @@
     "sections": "Sections",
     "riskAlerts": "Risk Alerts",
     "broadcast": "Broadcast",
+    "users": "Users",
     "signOut": "Sign out →"
   },
   "login": {
@@ -41,11 +42,30 @@
   },
   "admissions": {
     "title": "Admissions Pipeline",
-    "totalLeads": "total leads"
+    "totalLeads": "total leads",
+    "addLead": "+ New lead",
+    "editLead": "Edit lead",
+    "deleteLead": "Delete lead",
+    "confirmDelete": "Are you sure you want to delete {name}? This cannot be undone."
+  },
+  "leads": {
+    "form": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "sourceCampaign": "Campaign",
+      "sourceCampaignPlaceholder": "e.g. Open House 2026",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional information..."
+    }
   },
   "students": {
     "title": "Students",
     "total": "total",
+    "add": "+ Add student",
+    "edit": "Edit student",
+    "delete": "Delete student",
     "filters": {
       "gradeLevel": "Grade level",
       "allGrades": "All grades",
@@ -62,6 +82,16 @@
       "view": "View →",
       "noResults": "No students match filters."
     },
+    "form": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "dateOfBirth": "Date of birth",
+      "gradeLevel": "Grade level",
+      "enrollmentStatus": "Enrollment status",
+      "section": "Section",
+      "noSection": "No section",
+      "selectSection": "Select a section"
+    },
     "detail": {
       "backToStudents": "← Back to students",
       "birthDate": "Born",
@@ -72,8 +102,15 @@
       "guardians": "Guardians",
       "noGuardians": "No guardians registered.",
       "contact": "Contact:",
-      "relationship": "({{relationship}})"
-    }
+      "relationship": "({{relationship}})",
+      "addGuardian": "+ Add guardian",
+      "removeGuardian": "Remove",
+      "confirmRemoveGuardian": "Remove \"{name}\" as a guardian of this student? This does not delete the guardian record.",
+      "riskHistory": "Risk history",
+      "viewAllAlerts": "View all",
+      "noRiskAlerts": "No risk alerts for this student."
+    },
+    "confirmDelete": "Are you sure you want to delete {name}? This action cannot be undone."
   },
   "sections": {
     "title": "Sections",
@@ -81,9 +118,43 @@
     "grade": "Grade",
     "room": "Room",
     "students": "Students",
+    "teachers": "Teachers",
     "teacher": "Teacher",
     "counselor": "Counselor",
-    "noSections": "No sections yet."
+    "noSections": "No sections yet.",
+    "add": "+ New section",
+    "edit": "Edit",
+    "delete": "Delete",
+    "manageRoster": "Manage roster",
+    "form": {
+      "name": "Section name",
+      "gradeLevel": "Grade level",
+      "semester": "Semester",
+      "room": "Room (optional)",
+      "counselor": "Counselor"
+    },
+    "assigned": "Assigned",
+    "addStudent": "Add student",
+    "addTeacher": "Add teacher",
+    "searchStudent": "Search students…",
+    "searchTeacher": "Search teachers…",
+    "noStudentsAssigned": "No students assigned.",
+    "noTeachersAssigned": "No teachers assigned.",
+    "noStudentsAvailable": "No students available to add.",
+    "noTeachersAvailable": "No teachers available to add.",
+    "remove": "Remove",
+    "confirmDelete": "Are you sure you want to delete \"{name}\"? This cannot be undone."
+  },
+  "guardians": {
+    "title": "Guardians",
+    "form": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "communicationPreference": "Communication preference",
+      "relationshipType": "Relationship"
+    }
   },
   "riskAlerts": {
     "title": "Risk Alerts",
@@ -97,7 +168,21 @@
     "resolve": "Resolve",
     "attendance": "Attendance",
     "gradeDrop": "Grade drop",
-    "noAlerts": "No alerts."
+    "noAlerts": "No alerts.",
+    "raiseAlert": "+ Raise alert",
+    "raise": "Raise alert",
+    "student": "Student",
+    "selectStudent": "Select a student",
+    "attendanceRate": "Attendance rate (%)",
+    "gradeDropRate": "Grade drop (%)",
+    "riskFactors": "Risk factors",
+    "lowAttendance": "Low attendance",
+    "gradeDecline": "Grade decline",
+    "notes": "Notes",
+    "notesPlaceholder": "Additional notes...",
+    "noNotes": "No notes — click to add",
+    "clickToEditNotes": "Click to edit notes",
+    "fillAllFields": "Please fill in all required fields."
   },
   "broadcast": {
     "title": "Emergency Broadcast",
@@ -129,5 +214,51 @@
     "emailOnly": "Email only",
     "smsOnly": "SMS only",
     "both": "Email + SMS"
+  },
+  "profile": {
+    "title": "My Profile",
+    "profileInfo": "Profile information",
+    "changePassword": "Change password",
+    "saved": "Profile saved.",
+    "passwordChanged": "Password changed successfully.",
+    "emailChangedNotice": "Your email was changed. Please sign in again with your new email.",
+    "relogin": "Sign in again",
+    "updatePassword": "Update password",
+    "passwordMismatch": "New password and confirmation do not match.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "total": "total",
+    "add": "+ Add user",
+    "edit": "Edit",
+    "delete": "Delete",
+    "resetPassword": "Reset password",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "createdAt": "Created"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "password": "Password",
+      "newPassword": "New password",
+      "minChars": "min. 8 characters"
+    },
+    "roles": {
+      "admin": "Admin",
+      "counselor": "Counselor",
+      "teacher": "Teacher"
+    },
+    "confirmDelete": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
   }
 }

@@ -10,6 +10,7 @@
     "sections": "Secciones",
     "riskAlerts": "Alertas de Riesgo",
     "broadcast": "Broadcast",
+    "users": "Usuarios",
     "signOut": "Cerrar sesión →"
   },
   "login": {
@@ -41,11 +42,30 @@
   },
   "admissions": {
     "title": "Pipeline de Admisiones",
-    "totalLeads": "total de leads"
+    "totalLeads": "total de leads",
+    "addLead": "+ Nuevo lead",
+    "editLead": "Editar lead",
+    "deleteLead": "Eliminar lead",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar a {name}? Esto no se puede deshacer."
+  },
+  "leads": {
+    "form": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "sourceCampaign": "Campaña",
+      "sourceCampaignPlaceholder": "ej. Puerta Abierta 2026",
+      "notes": "Notas",
+      "notesPlaceholder": "Información adicional..."
+    }
   },
   "students": {
     "title": "Estudiantes",
     "total": "total",
+    "add": "+ Agregar estudiante",
+    "edit": "Editar estudiante",
+    "delete": "Eliminar estudiante",
     "filters": {
       "gradeLevel": "Grado",
       "allGrades": "Todos los grados",
@@ -62,6 +82,16 @@
       "view": "Ver →",
       "noResults": "Ningún estudiante coincide con los filtros."
     },
+    "form": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "dateOfBirth": "Fecha de nacimiento",
+      "gradeLevel": "Grado",
+      "enrollmentStatus": "Estado de inscripción",
+      "section": "Sección",
+      "noSection": "Sin sección",
+      "selectSection": "Seleccionar sección"
+    },
     "detail": {
       "backToStudents": "← Volver a estudiantes",
       "birthDate": "Nació",
@@ -72,8 +102,15 @@
       "guardians": "Tutores",
       "noGuardians": "Sin tutores registrados.",
       "contact": "Contacto:",
-      "relationship": "({{relationship}})"
-    }
+      "relationship": "({{relationship}})",
+      "addGuardian": "+ Agregar tutor",
+      "removeGuardian": "Quitar",
+      "confirmRemoveGuardian": "¿Quitar a \"{name}\" como tutor de este estudiante? Esto no elimina el registro del tutor.",
+      "riskHistory": "Historial de riesgo",
+      "viewAllAlerts": "Ver todas",
+      "noRiskAlerts": "Sin alertas de riesgo para este estudiante."
+    },
+    "confirmDelete": "¿Estás seguro de que deseas eliminar a {name}? Esta acción no se puede deshacer."
   },
   "sections": {
     "title": "Secciones",
@@ -81,9 +118,43 @@
     "grade": "Grado",
     "room": "Aula",
     "students": "Estudiantes",
+    "teachers": "Profesores",
     "teacher": "Profesor",
     "counselor": "Consejero",
-    "noSections": "Sin secciones aún."
+    "noSections": "Sin secciones aún.",
+    "add": "+ Nueva sección",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "manageRoster": "Gestionar lista",
+    "form": {
+      "name": "Nombre de la sección",
+      "gradeLevel": "Grado",
+      "semester": "Semestre",
+      "room": "Aula (opcional)",
+      "counselor": "Consejero"
+    },
+    "assigned": "Asignados",
+    "addStudent": "Agregar estudiante",
+    "addTeacher": "Agregar profesor",
+    "searchStudent": "Buscar estudiantes…",
+    "searchTeacher": "Buscar profesores…",
+    "noStudentsAssigned": "Sin estudiantes asignados.",
+    "noTeachersAssigned": "Sin profesores asignados.",
+    "noStudentsAvailable": "No hay estudiantes disponibles.",
+    "noTeachersAvailable": "No hay profesores disponibles.",
+    "remove": "Quitar",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar \"{name}\"? Esto no se puede deshacer."
+  },
+  "guardians": {
+    "title": "Tutores",
+    "form": {
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "communicationPreference": "Preferencia de comunicación",
+      "relationshipType": "Relación"
+    }
   },
   "riskAlerts": {
     "title": "Alertas de Riesgo",
@@ -97,7 +168,21 @@
     "resolve": "Resolver",
     "attendance": "Asistencia",
     "gradeDrop": "Caída de calificaciones",
-    "noAlerts": "Sin alertas."
+    "noAlerts": "Sin alertas.",
+    "raiseAlert": "+ Generar alerta",
+    "raise": "Generar alerta",
+    "student": "Estudiante",
+    "selectStudent": "Seleccionar estudiante",
+    "attendanceRate": "Tasa de asistencia (%)",
+    "gradeDropRate": "Tasa de caída de notas (%)",
+    "riskFactors": "Factores de riesgo",
+    "lowAttendance": "Baja asistencia",
+    "gradeDecline": "Declive de calificaciones",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas adicionales...",
+    "noNotes": "Sin notas — clic para agregar",
+    "clickToEditNotes": "Clic para editar notas",
+    "fillAllFields": "Por favor complete todos los campos requeridos."
   },
   "broadcast": {
     "title": "Broadcast de Emergencia",
@@ -129,5 +214,51 @@
     "emailOnly": "Solo correo",
     "smsOnly": "Solo SMS",
     "both": "Correo + SMS"
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "profileInfo": "Información del perfil",
+    "changePassword": "Cambiar contraseña",
+    "saved": "Perfil guardado.",
+    "passwordChanged": "Contraseña cambiada exitosamente.",
+    "emailChangedNotice": "Tu correo fue cambiado. Por favor inicia sesión de nuevo con tu nuevo correo.",
+    "relogin": "Iniciar sesión de nuevo",
+    "updatePassword": "Actualizar contraseña",
+    "passwordMismatch": "La nueva contraseña y la confirmación no coinciden.",
+    "form": {
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "currentPassword": "Contraseña actual",
+      "newPassword": "Nueva contraseña",
+      "confirmPassword": "Confirmar nueva contraseña"
+    }
+  },
+  "users": {
+    "title": "Usuarios",
+    "total": "total",
+    "add": "+ Agregar usuario",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "resetPassword": "Restablecer contraseña",
+    "table": {
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "createdAt": "Creado"
+    },
+    "form": {
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "password": "Contraseña",
+      "newPassword": "Nueva contraseña",
+      "minChars": "mín. 8 caracteres"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "counselor": "Consejero",
+      "teacher": "Profesor"
+    },
+    "confirmDelete": "¿Estás seguro de que deseas eliminar a \"{name}\"? Esta acción no se puede deshacer."
   }
 }

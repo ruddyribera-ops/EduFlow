@@ -58,6 +58,74 @@
 ### 7. Login Flow Bugs Fixed ✅ (April 19 late)
 Login had 4 stacked bugs causing a flash-loop:
 - **Missing password field**: Login form only sent `email` — `password` was never in the form UI. API validation failed silently, Laravel returned HTML redirect (not JSON) because `Accept: */*` header meant no `Accept: application/json`.
+
+### 8. Unauthenticated API Requests — 500 Error ✅ (April 19 late)
+
+### 9. Full CRUD — Write Operations (Segments 1–6) ✅ (April 19–20)
+All missing write operations (Create/Update/Delete) were implemented across 6 segments. Every backend write endpoint requires `auth:sanctum` + role authorization. Every frontend page uses `"use client"` under `app/[locale]/(dashboard)/`.
+
+**Segment 1 — Shared UI + User Management**
+- `backend/app/Http/Controllers/Api/UserController.php` — full CRUD + resetPassword
+- `backend/app/Policies/UserPolicy.php` — admin-only create/delete/resetPassword; self can view/update own
+- `backend/app/Http/Middleware/AdminOnly.php` — 403s non-admins at route level
+- `backend/app/Models/User.php` — added `SoftDeletes` trait
+- `backend/routes/api.php` — 6 user routes under `auth:sanctum` + `AdminOnly`
+- `frontend/components/ui/Modal.tsx`, `Button.tsx`, `Input.tsx`, `Select.tsx`, `FormField.tsx` — reusable primitives
+- `frontend/hooks/useUsers.ts` — SWR hook with create/updateUser/remove/resetPassword
+- `frontend/app/[locale]/(dashboard)/users/page.tsx` — full table + modals
+- All 3 `messages/*.json` — `users.*` + `nav.users` i18n keys
+
+**Segment 2 — Student CRUD + Guardian Management**
+- `backend/app/Http/Controllers/Api/GuardianController.php` — CRUD + attachToStudent/detachFromStudent
+- `StudentController.php` — added `store`/`update`/`destroy`; `date_of_birth` appends accessor (DB column is `dob`)
+- `backend/app/Policies/StudentPolicy.php` + `GuardianPolicy.php` — admin+counselor write
+- `backend/app/Http/Middleware/AdminOrCounselor.php` — 403s non-admin/counselor
+- `backend/app/Models/Student.php` — added `section_id` to `$fillable`, `$appends = ['date_of_birth']`
+- `backend/database/migrations/2026_04_20_000002_add_section_id_and_nullable_dob_to_students.php`
+- `frontend/hooks/useStudents.ts` / `useGuardians.ts` — with attach/detach
+- `frontend/app/[locale]/(dashboard)/students/page.tsx` — rewritten with CRUD modals
+- `frontend/app/[locale]/(dashboard)/students/[id]/page.tsx` — Edit student + Guardian management
+
+**Segment 3 — Lead CRUD**
+- `LeadController.php` — added `store`/`update`/`destroy`
+- `LeadPolicy.php` — admin+counselor write
+- `frontend/hooks/useLeads.ts` — extended with create/updateLead/remove
+- `frontend/app/[locale]/(dashboard)/admissions/page.tsx` — Kanban board (5 stages) + create/edit/delete
+
+**Segment 4 — Section CRUD + Roster Management**
+- `SectionController.php` — fully rewritten: `store`/`update`/`destroy`/`show` + assignTeacher/removeTeacher/assignStudent/removeStudent
+- `frontend/hooks/useSections.ts` — rewritten with assignment mutators
+- `frontend/app/[locale]/(dashboard)/sections/page.tsx` — section cards + roster management modal
+
+**Segment 5 — My Profile + Change Password**
+- `AuthController.php` — added `updateProfile` (`PATCH /auth/profile`) + `updatePassword` (`PATCH /auth/password`) with `current_password` verification
+- `frontend/app/[locale]/(dashboard)/profile/page.tsx` — profile info form + change password form
+- `frontend/app/[locale]/(dashboard)/layout.tsx` — user name links to `/profile`
+
+**Segment 6 — Risk Alert Enhancements**
+- `RiskAlertController.php` — added `store` (`POST /risk-alerts`) + `getStudentRiskAlerts` (`GET /students/{id}/risk-alerts`)
+- `RiskAlertPolicy.php` — admin+counselor create/update/delete
+- `Student.php` — added `riskAlerts()` HasMany relationship
+- `frontend/app/[locale]/(dashboard)/risk-alerts/page.tsx` — "+ Raise alert" modal (student picker, attendance, grade drop, risk factors, notes) + inline notes editing (click to edit, blur-save)
+- `frontend/app/[locale]/(dashboard)/students/[id]/page.tsx` — "Risk history" card showing last 5 alerts per student
+
+**Key patterns discovered during implementation:**
+- `date_of_birth` doesn't exist as a column (students table uses `dob`); solved with `$appends = ['date_of_birth']` + `getDateOfBirthAttribute()` on `Student` model
+- Composite PK pivots (`household_members`, `section_student`, `section_teacher`) cannot use `BelongsToMany::attach()` — must use `DB::table()->insert()` / `delete()`
+- Gate-style `authorize()` calls in policies require actual model instances, not `Model::class` strings (caused 500 when `attachToStudent` was called with `Guardian::class` instead of a resolved Guardian instance)
+- `risk_alerts.status` Postgres enum required migration to add `resolved` value
+
+**Pre-existing TS errors (not from this work):** 4 errors from prior sessions — `students/[id]/page.tsx` importing `useLocale` from `next/navigation` instead of `next-intl`, `i18n/request.tsx` locale type mismatch, deleted `app/[locale]/page.tsx` ghost reference, and `playwright.config.ts` `baseURL` type mismatch.
+
+
+Browser called `/api/stats` without a token (fresh page before login) → `Authenticate` middleware `redirectTo()` called `route('login')` which didn't exist → `RouteNotFoundException` → Whoops HTML 500 page.
+
+**Fixes**:
+- Created `App\Http\Middleware\Authenticate` extending Laravel's, overriding `redirectTo()` to return `null` for `api/*` routes
+- Simplified exception handler in `bootstrap/app.php` to always return JSON for `api/*` routes (removed `wantsJson()` check)
+- Added `/login` named route in `web.php` as fallback
+
+**Verified**: Fresh page load → login redirect with no 500. All pages (admissions, students, sections, risk-alerts, broadcast) load cleanly after login.
 - **Wrong response parsing**: `apiFetch` returns `{data: {token, user}}` from the API, but login handler used `res.token` / `res.user` (top-level) instead of `res.data.token` / `res.data.user`. `saveSession` received `user=undefined` → stored string `"undefined"` in localStorage.
 - **Routing conflict**: Both `/[locale]/page.tsx` and `/[locale]/(dashboard)/page.tsx` resolved to `/en`. Root page (redirect to login) won, dashboard never loaded.
 - **CSRF 302 loop**: `EnsureFrontendRequestsAreStateful` was prepended to ALL API routes by `SanctumServiceProvider::boot()`, not just routes in `bootstrap/app.php`. Even with `stateful: []` config, the middleware ran (though `fromFrontend()` returned false, it still added overhead). Also, bootstrap was not in docker-compose volume mounts, so `bootstrap/app.php` changes weren't picked up.
@@ -117,7 +185,10 @@ Frontend is running on port 3000 (native Windows `npm run dev`, PID visible via 
 - `http://localhost:3000/` → 307 → `/en`
 
 ### 6. Verify Full App Works Locally ✅
-Backend + frontend wired against Postgres (Docker). End-to-end verified:
+Backend + frontend wired against Postgres (Docker). All pages work end-to-end (Playwright verified):
+- Fresh page load → redirect to login (no 500 error)
+- Login → dashboard with real data
+- Admissions, Students, Sections, Risk Alerts, Broadcast → all load cleanly
 ```bash
 # Login
 curl.exe -s -X POST http://localhost:8000/api/auth/login \
@@ -183,6 +254,17 @@ curl.exe -s -H "Accept: application/json" http://localhost:8000/api/stats
 | `frontend/app/[locale]/page.tsx` | **DELETED** — conflicting route; `(dashboard)/page.tsx` now owns `/en` |
 | `backend/bootstrap/app.php` | Removed `EnsureFrontendRequestsAreStateful` from API middleware |
 | `docker-compose.yml` | Added `./backend/bootstrap` volume mount |
+
+### New (April 19 late — unauthenticated API 500 fix)
+
+| File | What Changed |
+|------|-------------|
+| `backend/app/Http/Middleware/Authenticate.php` | **NEW** — extends Laravel's Authenticate, overrides `redirectTo()` to return `null` for `api/*` routes |
+| `backend/bootstrap/app.php` | Exception handler: always return JSON for `api/*` (removed `wantsJson()` check); added `auth` middleware alias |
+| `backend/routes/web.php` | Added `/login` named route that redirects to frontend `/en/login` |
+
+### Previous (auth + risk-alerts + CORS)
+
 | File | What Changed |
 |------|-------------|
 | `backend/app/Http/Controllers/Api/AuthController.php` | **NEW** — login / me / logout with Sanctum |
@@ -214,7 +296,8 @@ curl.exe -s -H "Accept: application/json" http://localhost:8000/api/stats
 ## Git Log (Recent Commits)
 
 ```
-11362fc (HEAD -> main) fix: login flow — CSRF bypass, missing password field, wrong response parsing, routing conflict
+65c30f8 (HEAD -> main) fix: unauthenticated API requests return JSON 401 instead of 500 error
+11362fc fix: login flow — CSRF bypass, missing password field, wrong response parsing, routing conflict
 81fef2c fix: login page hydration flash and apiFetch JSON parse crash
 c786b00 feat: EduFlow fully wired — Auth + RiskAlerts + CORS + verified e2e
 ```
