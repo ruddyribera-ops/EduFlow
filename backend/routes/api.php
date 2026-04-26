@@ -101,12 +101,11 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::patch('grades/{grade}', [App\Http\Controllers\Api\GradeController::class, 'update']);
     Route::delete('grades/{grade}', [App\Http\Controllers\Api\GradeController::class, 'destroy']);
 
-    // Subjects
+    // Subjects (auth required)
     Route::get('subjects', [App\Http\Controllers\Api\SubjectController::class, 'index']);
     Route::get('subjects/{subject}', [App\Http\Controllers\Api\SubjectController::class, 'show']);
-});
 
-// Incidents
+    // Incidents
     Route::apiResource('incidents', App\Http\Controllers\Api\IncidentController::class)->only(['index', 'show', 'store']);
     Route::patch('incidents/{incident}/resolve', [App\Http\Controllers\Api\IncidentController::class, 'resolve']);
 
@@ -114,6 +113,15 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('attendances', [App\Http\Controllers\Api\AttendanceController::class, 'index']);
     Route::post('attendances/batch', [App\Http\Controllers\Api\AttendanceController::class, 'batch']);
     Route::patch('attendances/{attendance}', [App\Http\Controllers\Api\AttendanceController::class, 'update']);
+
+    // Parent Meetings
+    Route::get('parent-meetings', [App\Http\Controllers\Api\ParentMeetingController::class, 'index']);
+    Route::post('parent-meetings', [App\Http\Controllers\Api\ParentMeetingController::class, 'store']);
+    Route::get('parent-meetings/{parentMeeting}', [App\Http\Controllers\Api\ParentMeetingController::class, 'show']);
+    Route::patch('parent-meetings/{parentMeeting}', [App\Http\Controllers\Api\ParentMeetingController::class, 'update']);
+    Route::delete('parent-meetings/{parentMeeting}', [App\Http\Controllers\Api\ParentMeetingController::class, 'destroy']);
+    Route::get('parent-meetings/student/{student}', [App\Http\Controllers\Api\ParentMeetingController::class, 'forStudent']);
+});
 
 // Status updates - stricter rate limit (10/min) to prevent pipeline abuse
 Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
@@ -143,7 +151,7 @@ Route::post('guardian-auth/login', [App\Http\Controllers\Api\GuardianAuthControl
 | Guardian-protected routes (separate guard from staff)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:sanctum:guardian'])->group(function () {
+Route::middleware(['auth:sanctum:guardian', 'throttle:60,1'])->group(function () {
     Route::post('guardian-auth/logout', [App\Http\Controllers\Api\GuardianAuthController::class, 'logout']);
     Route::get('guardian-auth/me', [App\Http\Controllers\Api\GuardianAuthController::class, 'me']);
 
@@ -153,18 +161,4 @@ Route::middleware(['auth:sanctum:guardian'])->group(function () {
     Route::get('guardian/children/{student}/grades', [App\Http\Controllers\Api\GradeController::class, 'guardianStudentGrades']);
     Route::get('guardian/children/{student}/attendance', [App\Http\Controllers\Api\AttendanceController::class, 'guardianStudentAttendance']);
     Route::get('guardian/children/{student}/meetings', [App\Http\Controllers\Api\ParentMeetingController::class, 'forGuardian']);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Parent Meetings (staff)
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('parent-meetings', [App\Http\Controllers\Api\ParentMeetingController::class, 'index']);
-    Route::post('parent-meetings', [App\Http\Controllers\Api\ParentMeetingController::class, 'store']);
-    Route::get('parent-meetings/{parentMeeting}', [App\Http\Controllers\Api\ParentMeetingController::class, 'show']);
-    Route::patch('parent-meetings/{parentMeeting}', [App\Http\Controllers\Api\ParentMeetingController::class, 'update']);
-    Route::delete('parent-meetings/{parentMeeting}', [App\Http\Controllers\Api\ParentMeetingController::class, 'destroy']);
-    Route::get('parent-meetings/student/{student}', [App\Http\Controllers\Api\ParentMeetingController::class, 'forStudent']);
 });

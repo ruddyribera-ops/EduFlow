@@ -21,13 +21,14 @@ class SectionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Section::query()
-            ->with(['teachers', 'students', 'counselor'])
+            ->with(['teachers', 'counselor'])
+            ->withCount('students')
             ->when($request->grade_level, fn($q) => $q->where('grade_level', $request->grade_level));
 
         $sections = $query->paginate($request->get('per_page', 25));
 
         return response()->json([
-            'data' => $sections->items(),
+            'data' => collect($sections->items())->map(fn ($s) => array_merge($s->toArray(), ['students_count' => $s->students_count])),
             'meta' => [
                 'current_page' => $sections->currentPage(),
                 'last_page' => $sections->lastPage(),

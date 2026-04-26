@@ -15,7 +15,7 @@ class Guardian extends Model
 {
     use HasApiTokens, HasFactory, HasUuids, SoftDeletes;
 
-    protected $fillable = [
+protected $fillable = [
         'first_name',
         'last_name',
         'email',
@@ -31,9 +31,10 @@ class Guardian extends Model
     protected $hidden = [
         'password',
         'passwordless_login_token',
+        'passwordless_token_expires_at',
     ];
 
-    protected $casts = [
+protected $casts = [
         'passwordless_token_expires_at' => 'datetime',
         'is_primary' => 'boolean',
         'communication_preference' => CommunicationPreference::class,

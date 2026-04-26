@@ -225,16 +225,18 @@ class GradeController extends Controller
         }
 
         $grades = $student->grades()
-            ->with('section:id,name,subject_id')
-            ->orderByDesc('graded_at')
+            ->with('section:id,name')
+            ->orderBy('date', 'desc')
             ->get()
             ->map(fn ($g) => [
                 'id' => $g->id,
                 'section_name' => $g->section?->name,
-                'subject' => $g->section?->subject?->name,
-                'score' => $g->score,
-                'letter_grade' => $g->letter_grade,
-                'graded_at' => $g->graded_at?->toIsoString(),
+                'date' => $g->date,
+                'score' => (float) $g->score,
+                'max_score' => (float) $g->max_score,
+                'percentage' => $g->max_score > 0 ? round(($g->score / $g->max_score) * 100, 1) : null,
+                'type' => $g->type,
+                'notes' => $g->notes,
             ]);
 
         return response()->json(['data' => $grades]);

@@ -19,6 +19,8 @@ class GuardianController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $this->authorize('viewAny', Guardian::class);
+
         $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
         ]);

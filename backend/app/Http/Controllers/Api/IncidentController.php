@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreIncidentRequest;
 use App\Http\Requests\ResolveIncidentRequest;
 use App\Models\Incident;
+use App\Models\Student;
 use App\Models\User;
 use App\Notifications\IncidentGuardianNotification;
 use App\Notifications\IncidentReported;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class IncidentController extends Controller
@@ -152,8 +154,12 @@ class IncidentController extends Controller
             Notification::send($coordinators, new IncidentReported($incident, $studentName, $user->name));
         }
 
-        // Notify guardians of the student
-        $this->notifyGuardians($incident);
+        // Notify guardians of the student (non-blocking — log failures but don't fail the request)
+        try {
+            $this->notifyGuardians($incident);
+        } catch (\Throwable $e) {
+            Log::error('Guardian notification failed for incident ' . $incident->id . ': ' . $e->getMessage());
+        }
 
         return response()->json([
             'data' => [
@@ -206,8 +212,12 @@ class IncidentController extends Controller
             'resolver:id,name',
         ]);
 
-        // Notify guardians of resolution
-        $this->notifyGuardians($incident);
+        // Notify guardians of resolution (non-blocking)
+        try {
+            $this->notifyGuardians($incident);
+        } catch (\Throwable $e) {
+            Log::error('Guardian notification failed for incident ' . $incident->id . ': ' . $e->getMessage());
+        }
 
         return response()->json([
             'data' => [

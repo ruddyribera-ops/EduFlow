@@ -78,8 +78,9 @@ class BroadcastController extends Controller
 
         $totalRecipients = count($guardianIds);
 
-        // In production this would send emails/SMS via Twilio/SendGrid
-        // For now, simulate success
+        // TODO: implement real email/SMS dispatch via Twilio/SendGrid for email and Vonage for SMS.
+        // Currently broadcasts are simulated — no actual messages are sent.
+        // Persist broadcast records to a `broadcasts` table for history tracking.
         $broadcastId = Str::uuid()->toString();
 
         return response()->json([

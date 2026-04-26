@@ -69,9 +69,8 @@ class ParentMeetingController extends Controller
             'student:id,first_name,last_name,grade_level',
             'creator:id,name',
             'updater:id,name',
+            'student.guardians',
         ]);
-
-        $parentMeeting->load(['student.guardians']);
 
         $guardianNames = $parentMeeting->student
             ? $parentMeeting->student->guardians->pluck('full_name')->toArray()
