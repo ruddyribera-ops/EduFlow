@@ -260,5 +260,55 @@
       "teacher": "Profesor"
     },
     "confirmDelete": "¿Estás seguro de que deseas eliminar a \"{name}\"? Esta acción no se puede deshacer."
+  },
+  "attendance": {
+    "title": "Asistencia",
+    "date": "Fecha",
+    "section": "Sección",
+    "selectSection": "Seleccionar sección",
+    "selectSectionPrompt": "Por favor selecciona una sección para ver el registro de asistencia.",
+    "markAllPresent": "Marcar todos presentes",
+    "student": "Estudiante",
+    "grade": "Grado",
+    "status": "Estado",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas opcionales...",
+    "noStudents": "No hay estudiantes en esta sección.",
+    "save": "Guardar asistencia",
+    "present": "Presente",
+    "absent": "Ausente",
+    "tardy": "Tardanza",
+    "excused": "Excusado"
+  },
+  "incidents": {
+    "title": "Incidentes",
+    "report": "Reportar incidente",
+    "resolve": "Resolver",
+    "markResolved": "Marcar como resuelto",
+    "student": "Estudiante",
+    "selectStudent": "Seleccionar estudiante",
+    "type": "Tipo",
+    "severity": "Severidad",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Describe lo que ocurrió...",
+    "occurredAt": "Ocurrió a las",
+    "notifyCoordinator": "Notificar al coordinador",
+    "noIncidents": "No se encontraron incidentes.",
+    "clearFilters": "Limpiar filtros",
+    "resolutionNotesPlaceholder": "¿Cómo se resolvió?",
+    "types": {
+      "medical": "Médico",
+      "behavioral": "Conducta",
+      "late_arrival": "Llegada tarde",
+      "early_dismissal": "Salida anticipada",
+      "visitor": "Visitante",
+      "other": "Otro"
+    },
+    "severities": {
+      "low": "Bajo",
+      "medium": "Medio",
+      "high": "Alto"
+    },
+    "fillAllFields": "Por favor complete todos los campos requeridos."
   }
 }

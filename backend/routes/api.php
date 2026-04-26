@@ -95,6 +95,15 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('students/{student}/risk-alerts', [App\Http\Controllers\Api\RiskAlertController::class, 'getStudentRiskAlerts']);
 });
 
+// Incidents
+    Route::apiResource('incidents', App\Http\Controllers\Api\IncidentController::class)->only(['index', 'show', 'store']);
+    Route::patch('incidents/{incident}/resolve', [App\Http\Controllers\Api\IncidentController::class, 'resolve']);
+
+    // Attendance
+    Route::get('attendances', [App\Http\Controllers\Api\AttendanceController::class, 'index']);
+    Route::post('attendances/batch', [App\Http\Controllers\Api\AttendanceController::class, 'batch']);
+    Route::patch('attendances/{attendance}', [App\Http\Controllers\Api\AttendanceController::class, 'update']);
+
 // Status updates - stricter rate limit (10/min) to prevent pipeline abuse
 Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
     Route::patch('leads/{lead}/status', [App\Http\Controllers\Api\LeadController::class, 'updateStatus'])

@@ -260,5 +260,55 @@
       "teacher": "Professor"
     },
     "confirmDelete": "Tem certeza de que deseja excluir \"{name}\"? Esta ação não pode ser desfeita."
+  },
+  "attendance": {
+    "title": "Frequência",
+    "date": "Data",
+    "section": "Turma",
+    "selectSection": "Selecionar turma",
+    "selectSectionPrompt": "Por favor selecione uma turma para ver o registro de frequência.",
+    "markAllPresent": "Marcar todos presentes",
+    "student": "Aluno",
+    "grade": "Série",
+    "status": "Status",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas opcionais...",
+    "noStudents": "Nenhum aluno nesta turma.",
+    "save": "Salvar frequência",
+    "present": "Presente",
+    "absent": "Ausente",
+    "tardy": "Atraso",
+    "excused": "Excused"
+  },
+  "incidents": {
+    "title": "Incidentes",
+    "report": "Reportar incidente",
+    "resolve": "Resolver",
+    "markResolved": "Marcar como resolvido",
+    "student": "Aluno",
+    "selectStudent": "Selecionar aluno",
+    "type": "Tipo",
+    "severity": "Severidade",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Descreva o que aconteceu...",
+    "occurredAt": "Ocorreu em",
+    "notifyCoordinator": "Notificar orientador",
+    "noIncidents": "Nenhum incidente encontrado.",
+    "clearFilters": "Limpar filtros",
+    "resolutionNotesPlaceholder": "Como foi resolvido?",
+    "types": {
+      "medical": "Médico",
+      "behavioral": "Comportamental",
+      "late_arrival": "Chegada tardia",
+      "early_dismissal": "Saída antecipada",
+      "visitor": "Visitante",
+      "other": "Outro"
+    },
+    "severities": {
+      "low": "Baixo",
+      "medium": "Médio",
+      "high": "Alto"
+    },
+    "fillAllFields": "Por favor preencha todos os campos obrigatórios."
   }
 }

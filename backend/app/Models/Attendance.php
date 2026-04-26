@@ -17,6 +17,8 @@ class Attendance extends Model
         'date',
         'status',
         'notes',
+        'marked_by_user_id',
+        'marked_at',
     ];
 
     public const STATUS_PRESENT = 'present';

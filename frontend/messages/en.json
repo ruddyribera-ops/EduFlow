@@ -260,5 +260,55 @@
       "teacher": "Teacher"
     },
     "confirmDelete": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
+  },
+  "attendance": {
+    "title": "Attendance",
+    "date": "Date",
+    "section": "Section",
+    "selectSection": "Select a section",
+    "selectSectionPrompt": "Please select a section to view the attendance roster.",
+    "markAllPresent": "Mark All Present",
+    "student": "Student",
+    "grade": "Grade",
+    "status": "Status",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional notes...",
+    "noStudents": "No students enrolled in this section.",
+    "save": "Save Attendance",
+    "present": "Present",
+    "absent": "Absent",
+    "tardy": "Tardy",
+    "excused": "Excused"
+  },
+  "incidents": {
+    "title": "Incidents",
+    "report": "Report Incident",
+    "resolve": "Resolve",
+    "markResolved": "Mark Resolved",
+    "student": "Student",
+    "selectStudent": "Select a student",
+    "type": "Type",
+    "severity": "Severity",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe what happened...",
+    "occurredAt": "Occurred at",
+    "notifyCoordinator": "Notify coordinator",
+    "noIncidents": "No incidents found.",
+    "clearFilters": "Clear filters",
+    "resolutionNotesPlaceholder": "How was this resolved?",
+    "types": {
+      "medical": "Medical",
+      "behavioral": "Behavioral",
+      "late_arrival": "Late Arrival",
+      "early_dismissal": "Early Dismissal",
+      "visitor": "Visitor",
+      "other": "Other"
+    },
+    "severities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "fillAllFields": "Please fill in all required fields."
   }
 }
