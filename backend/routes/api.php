@@ -93,6 +93,17 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 
     // Per-student risk alerts
     Route::get('students/{student}/risk-alerts', [App\Http\Controllers\Api\RiskAlertController::class, 'getStudentRiskAlerts']);
+
+    // Grades
+    Route::get('grades', [App\Http\Controllers\Api\GradeController::class, 'index']);
+    Route::get('grades/{grade}', [App\Http\Controllers\Api\GradeController::class, 'show']);
+    Route::post('grades', [App\Http\Controllers\Api\GradeController::class, 'store']);
+    Route::patch('grades/{grade}', [App\Http\Controllers\Api\GradeController::class, 'update']);
+    Route::delete('grades/{grade}', [App\Http\Controllers\Api\GradeController::class, 'destroy']);
+
+    // Subjects
+    Route::get('subjects', [App\Http\Controllers\Api\SubjectController::class, 'index']);
+    Route::get('subjects/{subject}', [App\Http\Controllers\Api\SubjectController::class, 'show']);
 });
 
 // Incidents

@@ -182,103 +182,37 @@
     "notesPlaceholder": "Additional notes...",
     "noNotes": "No notes — click to add",
     "clickToEditNotes": "Click to edit notes",
-    "fillAllFields": "Please fill in all required fields."
+"fillAllFields": "Please fill in all required fields."
   },
-  "broadcast": {
-    "title": "Emergency Broadcast",
-    "subtitle": "Notifies guardians via email/SMS based on each guardian's communication preference.",
-    "message": "Message",
-    "messagePlaceholder": "e.g. School closure tomorrow due to weather.",
-    "target": "Target",
-    "allGuardians": "All guardians (school-wide)",
-    "specificStudents": "Specific students",
-    "selectStudents": "Select students",
-    "send": "Send broadcast",
-    "sending": "Sending…",
-    "success": "Broadcast sent!",
-    "recipients": "Recipients",
-    "emails": "Emails",
-    "sms": "SMS",
-    "skipped": "Skipped",
-    "recent": "Recent broadcasts"
-  },
-  "common": {
-    "loading": "Loading…",
-    "error": "Error",
-    "cancel": "Cancel",
-    "save": "Save",
-    "delete": "Delete",
-    "close": "Close",
-    "back": "Back",
-    "noPhone": "No phone",
-    "emailOnly": "Email only",
-    "smsOnly": "SMS only",
-    "both": "Email + SMS"
-  },
-  "profile": {
-    "title": "My Profile",
-    "profileInfo": "Profile information",
-    "changePassword": "Change password",
-    "saved": "Profile saved.",
-    "passwordChanged": "Password changed successfully.",
-    "emailChangedNotice": "Your email was changed. Please sign in again with your new email.",
-    "relogin": "Sign in again",
-    "updatePassword": "Update password",
-    "passwordMismatch": "New password and confirmation do not match.",
-    "form": {
-      "name": "Name",
-      "email": "Email",
-      "currentPassword": "Current password",
-      "newPassword": "New password",
-      "confirmPassword": "Confirm new password"
-    }
-  },
-  "users": {
-    "title": "Users",
-    "total": "total",
-    "add": "+ Add user",
-    "edit": "Edit",
-    "delete": "Delete",
-    "resetPassword": "Reset password",
-    "table": {
-      "name": "Name",
-      "email": "Email",
-      "role": "Role",
-      "createdAt": "Created"
-    },
-    "form": {
-      "name": "Name",
-      "email": "Email",
-      "role": "Role",
-      "password": "Password",
-      "newPassword": "New password",
-      "minChars": "min. 8 characters"
-    },
-    "roles": {
-      "admin": "Admin",
-      "counselor": "Counselor",
-      "teacher": "Teacher"
-    },
-    "confirmDelete": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
-  },
-  "attendance": {
-    "title": "Attendance",
-    "date": "Date",
+  "grades": {
+    "title": "Gradebook",
+    "enterGrades": "Enter Grades",
     "section": "Section",
-    "selectSection": "Select a section",
-    "selectSectionPrompt": "Please select a section to view the attendance roster.",
-    "markAllPresent": "Mark All Present",
+    "selectSection": "Select section",
     "student": "Student",
-    "grade": "Grade",
-    "status": "Status",
+    "selectStudent": "Select student",
+    "type": "Type",
+    "score": "Score",
+    "maxScore": "Max score",
+    "date": "Date",
+    "dateFrom": "From",
+    "dateTo": "To",
     "notes": "Notes",
     "notesPlaceholder": "Optional notes...",
-    "noStudents": "No students enrolled in this section.",
-    "save": "Save Attendance",
-    "present": "Present",
-    "absent": "Absent",
-    "tardy": "Tardy",
-    "excused": "Excused"
+    "average": "Avg",
+    "percentage": "Percentage",
+    "filters": "Filters",
+    "noGrades": "No grades found.",
+    "clearFilters": "Clear filters",
+    "deleteConfirm": "Are you sure you want to delete this grade? This cannot be undone.",
+    "fillAllFields": "Please fill in all required fields."
+  },
+  "subjects": {
+    "title": "Subjects",
+    "name": "Name",
+    "code": "Code",
+    "area": "Area",
+    "level": "Level"
   },
   "incidents": {
     "title": "Incidents",

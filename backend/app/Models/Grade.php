@@ -14,6 +14,7 @@ class Grade extends Model
     protected $fillable = [
         'student_id',
         'section_id',
+        'teacher_id',
         'date',
         'score',
         'max_score',
@@ -34,5 +35,10 @@ class Grade extends Model
     public function section(): BelongsTo
     {
         return $this->belongsTo(Section::class);
+    }
+
+    public function teacher(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
     }
 }

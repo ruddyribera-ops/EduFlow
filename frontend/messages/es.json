@@ -182,103 +182,37 @@
     "notesPlaceholder": "Notas adicionales...",
     "noNotes": "Sin notas — clic para agregar",
     "clickToEditNotes": "Clic para editar notas",
-    "fillAllFields": "Por favor complete todos los campos requeridos."
+"fillAllFields": "Por favor complete todos los campos requeridos."
   },
-  "broadcast": {
-    "title": "Broadcast de Emergencia",
-    "subtitle": "Notifica a los tutores por correo electrónico/SMS según su preferencia de comunicación.",
-    "message": "Mensaje",
-    "messagePlaceholder": "ej. Cierre de la escuela mañana por clima.",
-    "target": "Objetivo",
-    "allGuardians": "Todos los tutores (toda la escuela)",
-    "specificStudents": "Estudiantes específicos",
-    "selectStudents": "Seleccionar estudiantes",
-    "send": "Enviar broadcast",
-    "sending": "Enviando…",
-    "success": "¡Broadcast enviado!",
-    "recipients": "Destinatarios",
-    "emails": "Correos",
-    "sms": "SMS",
-    "skipped": "Omitido",
-    "recent": "Broadcasts recientes"
-  },
-  "common": {
-    "loading": "Cargando…",
-    "error": "Error",
-    "cancel": "Cancelar",
-    "save": "Guardar",
-    "delete": "Eliminar",
-    "close": "Cerrar",
-    "back": "Atrás",
-    "noPhone": "Sin teléfono",
-    "emailOnly": "Solo correo",
-    "smsOnly": "Solo SMS",
-    "both": "Correo + SMS"
-  },
-  "profile": {
-    "title": "Mi Perfil",
-    "profileInfo": "Información del perfil",
-    "changePassword": "Cambiar contraseña",
-    "saved": "Perfil guardado.",
-    "passwordChanged": "Contraseña cambiada exitosamente.",
-    "emailChangedNotice": "Tu correo fue cambiado. Por favor inicia sesión de nuevo con tu nuevo correo.",
-    "relogin": "Iniciar sesión de nuevo",
-    "updatePassword": "Actualizar contraseña",
-    "passwordMismatch": "La nueva contraseña y la confirmación no coinciden.",
-    "form": {
-      "name": "Nombre",
-      "email": "Correo electrónico",
-      "currentPassword": "Contraseña actual",
-      "newPassword": "Nueva contraseña",
-      "confirmPassword": "Confirmar nueva contraseña"
-    }
-  },
-  "users": {
-    "title": "Usuarios",
-    "total": "total",
-    "add": "+ Agregar usuario",
-    "edit": "Editar",
-    "delete": "Eliminar",
-    "resetPassword": "Restablecer contraseña",
-    "table": {
-      "name": "Nombre",
-      "email": "Correo electrónico",
-      "role": "Rol",
-      "createdAt": "Creado"
-    },
-    "form": {
-      "name": "Nombre",
-      "email": "Correo electrónico",
-      "role": "Rol",
-      "password": "Contraseña",
-      "newPassword": "Nueva contraseña",
-      "minChars": "mín. 8 caracteres"
-    },
-    "roles": {
-      "admin": "Administrador",
-      "counselor": "Consejero",
-      "teacher": "Profesor"
-    },
-    "confirmDelete": "¿Estás seguro de que deseas eliminar a \"{name}\"? Esta acción no se puede deshacer."
-  },
-  "attendance": {
-    "title": "Asistencia",
-    "date": "Fecha",
+  "grades": {
+    "title": "Libro de calificaciones",
+    "enterGrades": "Ingresar notas",
     "section": "Sección",
     "selectSection": "Seleccionar sección",
-    "selectSectionPrompt": "Por favor selecciona una sección para ver el registro de asistencia.",
-    "markAllPresent": "Marcar todos presentes",
     "student": "Estudiante",
-    "grade": "Grado",
-    "status": "Estado",
+    "selectStudent": "Seleccionar estudiante",
+    "type": "Tipo",
+    "score": "Nota",
+    "maxScore": "Nota máxima",
+    "date": "Fecha",
+    "dateFrom": "Desde",
+    "dateTo": "Hasta",
     "notes": "Notas",
     "notesPlaceholder": "Notas opcionales...",
-    "noStudents": "No hay estudiantes en esta sección.",
-    "save": "Guardar asistencia",
-    "present": "Presente",
-    "absent": "Ausente",
-    "tardy": "Tardanza",
-    "excused": "Excusado"
+    "average": "Promedio",
+    "percentage": "Porcentaje",
+    "filters": "Filtros",
+    "noGrades": "No se encontraron calificaciones.",
+    "clearFilters": "Limpiar filtros",
+    "deleteConfirm": "¿Estás seguro de que deseas eliminar esta calificación? Esto no se puede deshacer.",
+    "fillAllFields": "Por favor complete todos los campos requeridos."
+  },
+  "subjects": {
+    "title": "Materias",
+    "name": "Nombre",
+    "code": "Código",
+    "area": "Área",
+    "level": "Nivel"
   },
   "incidents": {
     "title": "Incidentes",

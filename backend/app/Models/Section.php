@@ -39,4 +39,9 @@ class Section extends Model
     {
         return $this->belongsTo(User::class, 'counselor_id');
     }
+
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'section_subjects');
+    }
 }

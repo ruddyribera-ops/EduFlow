@@ -182,103 +182,37 @@
     "notesPlaceholder": "Notas adicionais...",
     "noNotes": "Sem notas — clique para adicionar",
     "clickToEditNotes": "Clique para editar notas",
-    "fillAllFields": "Por favor preencha todos os campos obrigatórios."
+"fillAllFields": "Por favor preencha todos os campos obrigatórios."
   },
-  "broadcast": {
-    "title": "Broadcast de Emergência",
-    "subtitle": "Notifica responsáveis por email/SMS de acordo com sua preferência de comunicação.",
-    "message": "Mensagem",
-    "messagePlaceholder": "ex. Fechamento da escola amanhã por tempo.",
-    "target": "Alvo",
-    "allGuardians": "Todos os responsáveis (toda a escola)",
-    "specificStudents": "Alunos específicos",
-    "selectStudents": "Selecionar alunos",
-    "send": "Enviar broadcast",
-    "sending": "Enviando…",
-    "success": "Broadcast enviado!",
-    "recipients": "Destinatários",
-    "emails": "Emails",
-    "sms": "SMS",
-    "skipped": "Ignorado",
-    "recent": "Broadcasts recentes"
-  },
-  "common": {
-    "loading": "Carregando…",
-    "error": "Erro",
-    "cancel": "Cancelar",
-    "save": "Salvar",
-    "delete": "Excluir",
-    "close": "Fechar",
-    "back": "Voltar",
-    "noPhone": "Sem telefone",
-    "emailOnly": "Apenas email",
-    "smsOnly": "Apenas SMS",
-    "both": "Email + SMS"
-  },
-  "profile": {
-    "title": "Meu Perfil",
-    "profileInfo": "Informações do perfil",
-    "changePassword": "Alterar senha",
-    "saved": "Perfil salvo.",
-    "passwordChanged": "Senha alterada com sucesso.",
-    "emailChangedNotice": "Seu email foi alterado. Por favor, entre novamente com seu novo email.",
-    "relogin": "Entrar novamente",
-    "updatePassword": "Atualizar senha",
-    "passwordMismatch": "A nova senha e a confirmação não coincidem.",
-    "form": {
-      "name": "Nome",
-      "email": "Email",
-      "currentPassword": "Senha atual",
-      "newPassword": "Nova senha",
-      "confirmPassword": "Confirmar nova senha"
-    }
-  },
-  "users": {
-    "title": "Usuários",
-    "total": "total",
-    "add": "+ Adicionar usuário",
-    "edit": "Editar",
-    "delete": "Excluir",
-    "resetPassword": "Redefinir senha",
-    "table": {
-      "name": "Nome",
-      "email": "Email",
-      "role": "Função",
-      "createdAt": "Criado em"
-    },
-    "form": {
-      "name": "Nome",
-      "email": "Email",
-      "role": "Função",
-      "password": "Senha",
-      "newPassword": "Nova senha",
-      "minChars": "mín. 8 caracteres"
-    },
-    "roles": {
-      "admin": "Administrador",
-      "counselor": "Orientador",
-      "teacher": "Professor"
-    },
-    "confirmDelete": "Tem certeza de que deseja excluir \"{name}\"? Esta ação não pode ser desfeita."
-  },
-  "attendance": {
-    "title": "Frequência",
-    "date": "Data",
+  "grades": {
+    "title": "Livro de Notas",
+    "enterGrades": "Inserir Notas",
     "section": "Turma",
     "selectSection": "Selecionar turma",
-    "selectSectionPrompt": "Por favor selecione uma turma para ver o registro de frequência.",
-    "markAllPresent": "Marcar todos presentes",
     "student": "Aluno",
-    "grade": "Série",
-    "status": "Status",
+    "selectStudent": "Selecionar aluno",
+    "type": "Tipo",
+    "score": "Nota",
+    "maxScore": "Nota máxima",
+    "date": "Data",
+    "dateFrom": "De",
+    "dateTo": "Até",
     "notes": "Notas",
     "notesPlaceholder": "Notas opcionais...",
-    "noStudents": "Nenhum aluno nesta turma.",
-    "save": "Salvar frequência",
-    "present": "Presente",
-    "absent": "Ausente",
-    "tardy": "Atraso",
-    "excused": "Excused"
+    "average": "Média",
+    "percentage": "Porcentagem",
+    "filters": "Filtros",
+    "noGrades": "Nenhuma nota encontrada.",
+    "clearFilters": "Limpar filtros",
+    "deleteConfirm": "Tem certeza de que deseja excluir esta nota? Esta ação não pode ser desfeita.",
+    "fillAllFields": "Por favor preencha todos os campos obrigatórios."
+  },
+  "subjects": {
+    "title": "Matérias",
+    "name": "Nome",
+    "code": "Código",
+    "area": "Área",
+    "level": "Nível"
   },
   "incidents": {
     "title": "Incidentes",
