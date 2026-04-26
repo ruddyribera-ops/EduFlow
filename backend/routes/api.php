@@ -129,3 +129,42 @@ Route::middleware(['auth:sanctum', 'throttle:5,1'])->group(function () {
     Route::get('broadcasts', [App\Http\Controllers\Api\BroadcastController::class, 'index']);
     Route::post('broadcasts', [App\Http\Controllers\Api\BroadcastController::class, 'store']);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Guardian Auth (public)
+|--------------------------------------------------------------------------
+*/
+Route::post('guardian-auth/login', [App\Http\Controllers\Api\GuardianAuthController::class, 'login'])
+    ->middleware('throttle:10,1');
+
+/*
+|--------------------------------------------------------------------------
+| Guardian-protected routes (separate guard from staff)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:sanctum:guardian'])->group(function () {
+    Route::post('guardian-auth/logout', [App\Http\Controllers\Api\GuardianAuthController::class, 'logout']);
+    Route::get('guardian-auth/me', [App\Http\Controllers\Api\GuardianAuthController::class, 'me']);
+
+    // Guardian portal: view their children's data
+    Route::get('guardian/children', [App\Http\Controllers\Api\GuardianController::class, 'myChildren']);
+    Route::get('guardian/children/{student}/incidents', [App\Http\Controllers\Api\IncidentController::class, 'guardianStudentIncidents']);
+    Route::get('guardian/children/{student}/grades', [App\Http\Controllers\Api\GradeController::class, 'guardianStudentGrades']);
+    Route::get('guardian/children/{student}/attendance', [App\Http\Controllers\Api\AttendanceController::class, 'guardianStudentAttendance']);
+    Route::get('guardian/children/{student}/meetings', [App\Http\Controllers\Api\ParentMeetingController::class, 'forGuardian']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Parent Meetings (staff)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('parent-meetings', [App\Http\Controllers\Api\ParentMeetingController::class, 'index']);
+    Route::post('parent-meetings', [App\Http\Controllers\Api\ParentMeetingController::class, 'store']);
+    Route::get('parent-meetings/{parentMeeting}', [App\Http\Controllers\Api\ParentMeetingController::class, 'show']);
+    Route::patch('parent-meetings/{parentMeeting}', [App\Http\Controllers\Api\ParentMeetingController::class, 'update']);
+    Route::delete('parent-meetings/{parentMeeting}', [App\Http\Controllers\Api\ParentMeetingController::class, 'destroy']);
+    Route::get('parent-meetings/student/{student}', [App\Http\Controllers\Api\ParentMeetingController::class, 'forStudent']);
+});

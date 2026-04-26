@@ -10,6 +10,7 @@ use App\Models\EnrollmentLead;
 use App\Models\Attendance;
 use App\Models\Grade;
 use App\Models\Incident;
+use App\Models\ParentMeeting;
 use App\Policies\SectionPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\StudentPolicy;
@@ -19,6 +20,7 @@ use App\Policies\RiskAlertPolicy;
 use App\Policies\AttendancePolicy;
 use App\Policies\GradePolicy;
 use App\Policies\IncidentPolicy;
+use App\Policies\ParentMeetingPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -38,6 +40,7 @@ class AuthServiceProvider extends ServiceProvider
         Attendance::class => AttendancePolicy::class,
         Grade::class => GradePolicy::class,
         Incident::class => IncidentPolicy::class,
+        ParentMeeting::class => ParentMeetingPolicy::class,
     ];
 
     public function register(): void

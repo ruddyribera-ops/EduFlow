@@ -179,4 +179,41 @@ class AttendanceController extends Controller
             ],
         ]);
     }
+
+    /**
+     * GET /api/guardian/children/{student}/attendance
+     * Guardian view — only their linked students' attendance.
+     */
+    public function guardianStudentAttendance(Request $request, Student $student): JsonResponse
+    {
+        $guardian = $request->user();
+
+        $isLinked = $guardian->students()->where('student_id', $student->id)->exists();
+        if (!$isLinked) {
+            return response()->json([
+                'error' => [
+                    'code' => 'FORBIDDEN',
+                    'message' => 'You are not linked to this student.',
+                ],
+            ], 403);
+        }
+
+        $query = $student->attendances();
+
+        if ($request->date_from) {
+            $query->whereDate('marked_at', '>=', $request->date_from);
+        }
+        if ($request->date_to) {
+            $query->whereDate('marked_at', '<=', $request->date_to);
+        }
+
+        $records = $query->orderByDesc('marked_at')->get()->map(fn ($a) => [
+            'id' => $a->id,
+            'status' => $a->status,
+            'notes' => $a->notes,
+            'marked_at' => $a->marked_at?->toIsoString(),
+        ]);
+
+        return response()->json(['data' => $records]);
+    }
 }

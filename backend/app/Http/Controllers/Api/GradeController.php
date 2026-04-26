@@ -205,4 +205,38 @@ class GradeController extends Controller
 
         return response()->json(null, 204);
     }
+
+    /**
+     * GET /api/guardian/children/{student}/grades
+     * Guardian view — only their linked students' grades.
+     */
+    public function guardianStudentGrades(Request $request, Student $student): JsonResponse
+    {
+        $guardian = $request->user();
+
+        $isLinked = $guardian->students()->where('student_id', $student->id)->exists();
+        if (!$isLinked) {
+            return response()->json([
+                'error' => [
+                    'code' => 'FORBIDDEN',
+                    'message' => 'You are not linked to this student.',
+                ],
+            ], 403);
+        }
+
+        $grades = $student->grades()
+            ->with('section:id,name,subject_id')
+            ->orderByDesc('graded_at')
+            ->get()
+            ->map(fn ($g) => [
+                'id' => $g->id,
+                'section_name' => $g->section?->name,
+                'subject' => $g->section?->subject?->name,
+                'score' => $g->score,
+                'letter_grade' => $g->letter_grade,
+                'graded_at' => $g->graded_at?->toIsoString(),
+            ]);
+
+        return response()->json(['data' => $grades]);
+    }
 }

@@ -8,21 +8,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\HasApiTokens;
 
 class Guardian extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasApiTokens, HasFactory, HasUuids, SoftDeletes;
 
     protected $fillable = [
         'first_name',
         'last_name',
         'email',
         'phone',
+        'password',
         'passwordless_login_token',
         'passwordless_token_expires_at',
         'communication_preference',
         'household_id',
         'is_primary',
+    ];
+
+    protected $hidden = [
+        'password',
+        'passwordless_login_token',
     ];
 
     protected $casts = [
@@ -41,6 +49,14 @@ class Guardian extends Model
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    /**
+     * Hash password when set.
+     */
+    public function setPasswordAttribute(?string $value): void
+    {
+        $this->attributes['password'] = $value ? Hash::make($value) : null;
     }
 
     /**

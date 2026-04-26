@@ -7,6 +7,7 @@ use App\Http\Requests\StoreIncidentRequest;
 use App\Http\Requests\ResolveIncidentRequest;
 use App\Models\Incident;
 use App\Models\User;
+use App\Notifications\IncidentGuardianNotification;
 use App\Notifications\IncidentReported;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -151,6 +152,9 @@ class IncidentController extends Controller
             Notification::send($coordinators, new IncidentReported($incident, $studentName, $user->name));
         }
 
+        // Notify guardians of the student
+        $this->notifyGuardians($incident);
+
         return response()->json([
             'data' => [
                 'id' => $incident->id,
@@ -164,6 +168,21 @@ class IncidentController extends Controller
                 'created_at' => $incident->created_at?->toIsoString(),
             ],
         ], 201);
+    }
+
+    /**
+     * Notify all guardians of the student about the incident.
+     */
+    private function notifyGuardians(Incident $incident): void
+    {
+        if (!$incident->student) {
+            return;
+        }
+
+        $guardians = $incident->student->guardians;
+        foreach ($guardians as $guardian) {
+            Notification::send($guardian, new IncidentGuardianNotification($incident, $guardian));
+        }
     }
 
     /**
@@ -187,6 +206,9 @@ class IncidentController extends Controller
             'resolver:id,name',
         ]);
 
+        // Notify guardians of resolution
+        $this->notifyGuardians($incident);
+
         return response()->json([
             'data' => [
                 'id' => $incident->id,
@@ -197,5 +219,40 @@ class IncidentController extends Controller
                 'is_resolved' => true,
             ],
         ]);
+    }
+
+    /**
+     * GET /api/guardian/children/{student}/incidents
+     * Guardian view — only their linked students' incidents.
+     */
+    public function guardianStudentIncidents(Request $request, Student $student): JsonResponse
+    {
+        $guardian = $request->user();
+
+        $isLinked = $guardian->students()->where('student_id', $student->id)->exists();
+        if (!$isLinked) {
+            return response()->json([
+                'error' => [
+                    'code' => 'FORBIDDEN',
+                    'message' => 'You are not linked to this student.',
+                ],
+            ], 403);
+        }
+
+        $incidents = Incident::where('student_id', $student->id)
+            ->orderByDesc('occurred_at')
+            ->get()
+            ->map(fn ($i) => [
+                'id' => $i->id,
+                'type' => $i->type,
+                'severity' => $i->severity,
+                'description' => $i->description,
+                'occurred_at' => $i->occurred_at?->toIsoString(),
+                'resolved_at' => $i->resolved_at?->toIsoString(),
+                'is_resolved' => $i->isResolved(),
+                'resolution_notes' => $i->resolution_notes,
+            ]);
+
+        return response()->json(['data' => $incidents]);
     }
 }

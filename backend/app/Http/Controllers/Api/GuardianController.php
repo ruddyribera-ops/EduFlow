@@ -160,4 +160,28 @@ class GuardianController extends Controller
 
         return response()->json(['message' => 'Guardian removed from student.'], 200);
     }
+
+    /**
+     * GET /api/guardian/children
+     * Guardian portal: list all children linked to the authenticated guardian.
+     */
+    public function myChildren(Request $request): JsonResponse
+    {
+        $guardian = $request->user();
+        $guardian->load(['students']);
+
+        return response()->json([
+            'data' => $guardian->students->map(fn ($s) => [
+                'id' => $s->id,
+                'first_name' => $s->first_name,
+                'last_name' => $s->last_name,
+                'full_name' => $s->full_name,
+                'grade_level' => $s->grade_level,
+                'enrollment_status' => $s->enrollment_status,
+                'relationship_type' => $s->pivot?->relationship_type,
+                'is_emergency_contact' => $s->pivot?->is_emergency_contact,
+                'can_pickup' => $s->pivot?->can_pickup,
+            ]),
+        ]);
+    }
 }
