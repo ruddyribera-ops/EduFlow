@@ -3,17 +3,17 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Section;
+use App\Models\Grade;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class SectionPolicy
+class GradePolicy
 {
     use HandlesAuthorization;
 
     /**
-     * Teachers see only their assigned sections.
-     * Coordinators see all sections in their department.
-     * Admins/directors/receptionists see all.
+     * Teachers enter grades for their assigned sections.
+     * Coordinators can view/override grades for their department.
+     * Admins/directors see all.
      */
     public function viewAny(User $user): bool
     {
@@ -27,20 +27,20 @@ class SectionPolicy
         ]);
     }
 
-    public function view(User $user, Section $section): bool
+    public function view(User $user, Grade $grade): bool
     {
         if (in_array($user->role, [User::ROLE_ADMIN, User::ROLE_DIRECTOR, User::ROLE_COORDINATOR, User::ROLE_COUNSELOR])) {
             return true;
         }
 
         if ($user->role === User::ROLE_RECEPTIONIST) {
-            return true; // Receptionist can view all sections for overview
+            return true; // Can view for reporting purposes
         }
 
-        // Teacher: must be assigned to this section
+        // Teacher: can only view if assigned to the section
         if ($user->role === User::ROLE_TEACHER) {
             $assignedSections = $user->assigned_sections ?? [];
-            return in_array($section->id, $assignedSections);
+            return in_array($grade->section_id, $assignedSections);
         }
 
         return false;
@@ -48,24 +48,36 @@ class SectionPolicy
 
     public function create(User $user): bool
     {
-        return in_array($user->role, [User::ROLE_ADMIN, User::ROLE_DIRECTOR, User::ROLE_COORDINATOR]);
+        return in_array($user->role, [
+            User::ROLE_ADMIN,
+            User::ROLE_DIRECTOR,
+            User::ROLE_COORDINATOR,
+            User::ROLE_TEACHER,
+        ]);
     }
 
-    public function update(User $user, Section $section): bool
+    public function update(User $user, Grade $grade): bool
     {
+        // Admins/directors can update any
         if (in_array($user->role, [User::ROLE_ADMIN, User::ROLE_DIRECTOR])) {
             return true;
         }
 
-        // Coordinators can update their department's sections
+        // Coordinators can override any grade in their department
         if ($user->role === User::ROLE_COORDINATOR) {
-            return true; // Department-level scope handled at controller level
+            return true; // Department scope handled at controller level
+        }
+
+        // Teacher: can only update grades in their assigned sections
+        if ($user->role === User::ROLE_TEACHER) {
+            $assignedSections = $user->assigned_sections ?? [];
+            return in_array($grade->section_id, $assignedSections);
         }
 
         return false;
     }
 
-    public function delete(User $user, Section $section): bool
+    public function delete(User $user, Grade $grade): bool
     {
         return in_array($user->role, [User::ROLE_ADMIN, User::ROLE_DIRECTOR]);
     }

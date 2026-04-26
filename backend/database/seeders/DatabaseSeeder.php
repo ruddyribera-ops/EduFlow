@@ -14,22 +14,67 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Get existing sections from the 206-student import
+        $sections = Section::all()->keyBy('name');
+
+        // Create director user
+        $director = User::create([
+            'id' => Str::uuid(),
+            'name' => 'María Rodríguez',
+            'email' => 'director@eduflow.test',
+            'password' => bcrypt('password'),
+            'role' => User::ROLE_DIRECTOR,
+            'department' => 'SCHOOL_WIDE',
+        ]);
+
+        // Create coordinator user (PRIMARIO)
+        $coordinatorPrimario = User::create([
+            'id' => Str::uuid(),
+            'name' => 'Carlos Mendoza',
+            'email' => 'coordinator.primario@eduflow.test',
+            'password' => bcrypt('password'),
+            'role' => User::ROLE_COORDINATOR,
+            'department' => 'PRIMARIO',
+        ]);
+
+        // Create coordinator user (SECUNDARIO)
+        $coordinatorSecundario = User::create([
+            'id' => Str::uuid(),
+            'name' => 'Laura Pérez',
+            'email' => 'coordinator.secundario@eduflow.test',
+            'password' => bcrypt('password'),
+            'role' => User::ROLE_COORDINATOR,
+            'department' => 'SECUNDARIO',
+        ]);
+
+        // Create receptionist user
+        $receptionist = User::create([
+            'id' => Str::uuid(),
+            'name' => 'Ana Martínez',
+            'email' => 'reception@eduflow.test',
+            'password' => bcrypt('password'),
+            'role' => User::ROLE_RECEPTIONIST,
+            'department' => 'SCHOOL_WIDE',
+        ]);
+
         // Create admin user
         $admin = User::create([
             'id' => Str::uuid(),
             'name' => 'Admin User',
             'email' => 'admin@eduflow.test',
             'password' => bcrypt('password'),
-            'role' => 'admin',
+            'role' => User::ROLE_ADMIN,
+            'department' => 'SCHOOL_WIDE',
         ]);
 
-        // Create counselors
+        // Create counselor users
         $counselor1 = User::create([
             'id' => Str::uuid(),
             'name' => 'Sarah Johnson',
             'email' => 'sarah@eduflow.test',
             'password' => bcrypt('password'),
-            'role' => 'counselor',
+            'role' => User::ROLE_COUNSELOR,
+            'department' => 'SCHOOL_WIDE',
         ]);
 
         $counselor2 = User::create([
@@ -37,58 +82,49 @@ class DatabaseSeeder extends Seeder
             'name' => 'Mike Williams',
             'email' => 'mike@eduflow.test',
             'password' => bcrypt('password'),
-            'role' => 'counselor',
+            'role' => User::ROLE_COUNSELOR,
+            'department' => 'SCHOOL_WIDE',
         ]);
 
-        // Create teachers
-        $teacher1 = User::create([
-            'id' => Str::uuid(),
-            'name' => 'Emily Chen',
-            'email' => 'emily@eduflow.test',
-            'password' => bcrypt('password'),
-            'role' => 'teacher',
-        ]);
+        // Assign teachers to sections via section_teacher pivot
+        // and set their assigned_sections JSON field
+        $teacherAssignments = [
+            'emily@eduflow.test' => ['1RO PRIMARIA', '2DO PRIMARIA'],
+            'david@eduflow.test' => ['3RO PRIMARIA', '4TO PRIMARIA'],
+        ];
 
-        $teacher2 = User::create([
-            'id' => Str::uuid(),
-            'name' => 'David Park',
-            'email' => 'david@eduflow.test',
-            'password' => bcrypt('password'),
-            'role' => 'teacher',
-        ]);
+        foreach ($teacherAssignments as $email => $sectionNames) {
+            $teacher = User::where('email', $email)->first();
+            if (!$teacher) {
+                $teacher = User::create([
+                    'id' => Str::uuid(),
+                    'name' => $email === 'emily@eduflow.test' ? 'Emily Chen' : 'David Park',
+                    'email' => $email,
+                    'password' => bcrypt('password'),
+                    'role' => User::ROLE_TEACHER,
+                    'department' => 'PRIMARIO',
+                ]);
+            }
 
-        // Create sections
-        $section1 = Section::create([
-            'id' => Str::uuid(),
-            'name' => 'Grade 5 - Math A',
-            'grade_level' => '5th',
-            'room' => 'B101',
-            'counselor_id' => $counselor1->id,
-            'semester' => 'fall',
-        ]);
+            // Set assigned_sections JSON field
+            $sectionIds = collect($sectionNames)
+                ->map(fn($name) => $sections->get($name)?->id)
+                ->filter()
+                ->toArray();
+            $teacher->assigned_sections = $sectionIds;
+            $teacher->save();
 
-        $section2 = Section::create([
-            'id' => Str::uuid(),
-            'name' => 'Grade 5 - Science',
-            'grade_level' => '5th',
-            'room' => 'B102',
-            'counselor_id' => $counselor1->id,
-            'semester' => 'fall',
-        ]);
-
-        // Assign teachers via section_teacher pivot (composite PK, no auto-increment ID)
-        \Illuminate\Support\Facades\DB::table('section_teacher')->insert([
-            'section_id' => $section1->id,
-            'teacher_id' => $teacher1->id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-        \Illuminate\Support\Facades\DB::table('section_teacher')->insert([
-            'section_id' => $section2->id,
-            'teacher_id' => $teacher2->id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            // Create section_teacher pivot entries
+            foreach ($sectionNames as $sectionName) {
+                $section = $sections->get($sectionName);
+                if ($section) {
+                    \Illuminate\Support\Facades\DB::table('section_teacher')->updateOrInsert(
+                        ['section_id' => $section->id, 'teacher_id' => $teacher->id],
+                        ['created_at' => now(), 'updated_at' => now()]
+                    );
+                }
+            }
+        }
 
         // Create students
         $student1 = Student::create([
@@ -265,8 +301,13 @@ class DatabaseSeeder extends Seeder
 
         $this->command->info('Database seeded successfully!');
         $this->command->info('Test accounts:');
+        $this->command->info('  Director: director@eduflow.test / password');
+        $this->command->info('  Coordinator PRIMARIO: coordinator.primario@eduflow.test / password');
+        $this->command->info('  Coordinator SECUNDARIO: coordinator.secundario@eduflow.test / password');
+        $this->command->info('  Receptionist: reception@eduflow.test / password');
         $this->command->info('  Admin: admin@eduflow.test / password');
         $this->command->info('  Counselor: sarah@eduflow.test / password');
-        $this->command->info('  Teacher: emily@eduflow.test / password');
+        $this->command->info('  Teacher (Emily, assigned to 1RO/2DO PRIM): emily@eduflow.test / password');
+        $this->command->info('  Teacher (David, assigned to 3RO/4TO PRIM): david@eduflow.test / password');
     }
 }

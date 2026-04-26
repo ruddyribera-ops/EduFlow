@@ -41,13 +41,22 @@ export type EnrollmentStatus =
   | "withdrawn"
   | "graduated";
 
-export type UserRole = "admin" | "counselor" | "teacher" | "guardian";
+export type UserRole =
+  | "admin"
+  | "director"
+  | "coordinator"
+  | "receptionist"
+  | "teacher"
+  | "counselor"
+  | "guardian";
 
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  department?: string | null;
+  assigned_sections?: string[];
   created_at: string;
 }
 
