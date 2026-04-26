@@ -7,7 +7,6 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
-  baseURL: process.env.E2E_BASE_URL || 'http://localhost:3000',
   use: {
     trace: 'on-first-retry',
     baseURL: process.env.E2E_BASE_URL || 'http://localhost:3000',
@@ -18,10 +17,6 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  // ✅ Flags applied to EVERY Chromium launch automatically
-  launchOptions: {
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  },
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',

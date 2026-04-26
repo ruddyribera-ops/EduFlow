@@ -57,6 +57,15 @@ coverage/
 # Docker
 .docker/
 
+# EduFlow student data (privacy-sensitive)
+all_students.json
+all_students_with_rude.json
+
+# Debug scripts (local development noise)
+backend/debug_*.php
+frontend/check_*.js
+frontend/read_*.js
+
 # Misc
 *.tgz
 *.zip

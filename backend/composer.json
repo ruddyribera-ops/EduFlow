@@ -5,11 +5,12 @@
     "license": "proprietary",
     "require": {
         "php": "^8.3",
+        "laravel/cashier": "^15.0",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.0",
         "meilisearch/meilisearch-php": "^1.0",
-        "laravel/cashier": "^15.0",
+        "phpoffice/phpspreadsheet": "*",
         "symfony/http-client": "^7.0",
         "twilio/sdk": "^8.0"
     },

@@ -4,7 +4,6 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  output: 'standalone',
 };
 
 // next-intl v4 plugin

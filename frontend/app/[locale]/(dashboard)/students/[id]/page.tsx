@@ -3,7 +3,8 @@
 import { useState } from "react";
 import useSWR from "swr";
 import Link from "next/link";
-import { useParams, useLocale } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import { swrFetcher } from "@/lib/api";
 import { Modal } from "@/components/ui/Modal";
