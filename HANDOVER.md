@@ -1,351 +1,261 @@
-# EduFlow - Project Handover
-
-## What Is EduFlow?
-
-**EduFlow** is a School Relationship Management System (Student CRM) with:
-- **Backend**: Laravel 11 + PostgreSQL
-- **Frontend**: Next.js 14 + TypeScript + TailwindCSS + shadcn/ui
-- **Multi-language**: English, Spanish, Portuguese-BR via next-intl v4
-- **FERPA-compliant** Row Level Security
-- **Deployment**: GitHub → Railway auto-deploy
+# EduFlow — Development Handover
+**Session Date:** April 26, 2026
+**Developer:** Ruddy Ribera
+**Agent:** OpenCode (MiniMax-M2)
 
 ---
 
-## What Was Done
+## Executive Summary
 
-### 1. Backend — Database & Seeder Fixes ✅
-- **Fixed seeder variable ordering**: Moved student creation BEFORE `section_student` inserts. `$student1/2/3` were referenced before they existed.
-- **Fixed composite PK pivot inserts**: Replaced all `attach()` calls with `DB::table()->insert()` for `section_teacher` and `section_student` pivot tables (Laravel's `attach()` doesn't work with composite PK tables).
-- **Fixed migrations**:
-  - `household_members`: Removed UUID PK → composite PK `(student_id, guardian_id)`
-  - `section_relations`: Removed UUID PKs → composite PKs for both `section_student` and `section_teacher`
-- **Database seeded successfully** — verified with PostgreSQL query showing 4 `section_student` rows.
-
-### 2. Backend — Laravel API Fixes ✅
-- **Fixed auth exception handler** in `bootstrap/app.php`: Returns JSON `{"message":"Unauthenticated."}` with 401 for API routes instead of redirecting to a non-existent `login` route.
-- **Created new controllers/routes** (from previous sessions):
-  - `StatsController` → `/api/stats`
-  - `BroadcastController` → `GET/POST /api/broadcasts`
-  - `SectionController` → fixed `with(['teacher'])` → `with(['teachers', 'students'])`
-- **Created FERPA policies and events**:
-  - `SectionPolicy.php`
-  - `StudentAtRisk.php` event
-  - `NotifyCounselorOfRisk.php` listener
-
-### 3. Docker Infrastructure ✅
-- **Fixed volume mounts** in `docker-compose.yml`: Changed `./backend:/var/www/html` (overwrites entire image including `vendor/`) to mount only specific subdirectories (`app`, `routes`, `database`, `public`, `resources`, `storage`).
-- **Created missing storage directories** on host: `storage/framework/{cache,sessions,views}`, `storage/app/public`, `storage/testing`, `bootstrap/cache`.
-- **Added `.dockerignore`** in `backend/`: Excludes `vendor/` from build context.
-- **Fixed `Dockerfile.local`**: Switched from Debian to Alpine, added proper storage directory creation, PostgreSQL client libs.
-- **Rebuilt images and recreated containers** — backend seeder runs successfully.
-
-### 4. Frontend — i18n Fixes ✅ (from previous sessions)
-- Fixed `next.config.js` — removed path from `require('next-intl/plugin')()`
-- Created `i18n/request.tsx` — `getRequestConfig` with `requestLocale` (next-intl v4 API)
-- Created `routing.ts` — `defineRouting` with locales
-- Created `middleware.ts` — `createMiddleware(routing)`
-- Fixed `LanguageSwitcher.tsx` — regex instead of `pathname.slice(3)`
-- Deleted duplicate `app/(dashboard)/` page tree
-
-### 5. GitHub & Deployment Prep ✅
-- All changes committed and pushed to GitHub
-- Root `railway.json` points to `backend/Dockerfile.railway`
-- `frontend/railway.json` points to `frontend/Dockerfile.railway`
-- Each service has its own Dockerfile (backend: `Dockerfile.railway`, frontend: `Dockerfile.railway`)
-
-### 6. Backend — Auth + Risk Alerts + CORS Wiring ✅ (April 19 evening)
-
-### 7. Login Flow Bugs Fixed ✅ (April 19 late)
-Login had 4 stacked bugs causing a flash-loop:
-- **Missing password field**: Login form only sent `email` — `password` was never in the form UI. API validation failed silently, Laravel returned HTML redirect (not JSON) because `Accept: */*` header meant no `Accept: application/json`.
-
-### 8. Unauthenticated API Requests — 500 Error ✅ (April 19 late)
-
-### 9. Full CRUD — Write Operations (Segments 1–6) ✅ (April 19–20)
-All missing write operations (Create/Update/Delete) were implemented across 6 segments. Every backend write endpoint requires `auth:sanctum` + role authorization. Every frontend page uses `"use client"` under `app/[locale]/(dashboard)/`.
-
-**Segment 1 — Shared UI + User Management**
-- `backend/app/Http/Controllers/Api/UserController.php` — full CRUD + resetPassword
-- `backend/app/Policies/UserPolicy.php` — admin-only create/delete/resetPassword; self can view/update own
-- `backend/app/Http/Middleware/AdminOnly.php` — 403s non-admins at route level
-- `backend/app/Models/User.php` — added `SoftDeletes` trait
-- `backend/routes/api.php` — 6 user routes under `auth:sanctum` + `AdminOnly`
-- `frontend/components/ui/Modal.tsx`, `Button.tsx`, `Input.tsx`, `Select.tsx`, `FormField.tsx` — reusable primitives
-- `frontend/hooks/useUsers.ts` — SWR hook with create/updateUser/remove/resetPassword
-- `frontend/app/[locale]/(dashboard)/users/page.tsx` — full table + modals
-- All 3 `messages/*.json` — `users.*` + `nav.users` i18n keys
-
-**Segment 2 — Student CRUD + Guardian Management**
-- `backend/app/Http/Controllers/Api/GuardianController.php` — CRUD + attachToStudent/detachFromStudent
-- `StudentController.php` — added `store`/`update`/`destroy`; `date_of_birth` appends accessor (DB column is `dob`)
-- `backend/app/Policies/StudentPolicy.php` + `GuardianPolicy.php` — admin+counselor write
-- `backend/app/Http/Middleware/AdminOrCounselor.php` — 403s non-admin/counselor
-- `backend/app/Models/Student.php` — added `section_id` to `$fillable`, `$appends = ['date_of_birth']`
-- `backend/database/migrations/2026_04_20_000002_add_section_id_and_nullable_dob_to_students.php`
-- `frontend/hooks/useStudents.ts` / `useGuardians.ts` — with attach/detach
-- `frontend/app/[locale]/(dashboard)/students/page.tsx` — rewritten with CRUD modals
-- `frontend/app/[locale]/(dashboard)/students/[id]/page.tsx` — Edit student + Guardian management
-
-**Segment 3 — Lead CRUD**
-- `LeadController.php` — added `store`/`update`/`destroy`
-- `LeadPolicy.php` — admin+counselor write
-- `frontend/hooks/useLeads.ts` — extended with create/updateLead/remove
-- `frontend/app/[locale]/(dashboard)/admissions/page.tsx` — Kanban board (5 stages) + create/edit/delete
-
-**Segment 4 — Section CRUD + Roster Management**
-- `SectionController.php` — fully rewritten: `store`/`update`/`destroy`/`show` + assignTeacher/removeTeacher/assignStudent/removeStudent
-- `frontend/hooks/useSections.ts` — rewritten with assignment mutators
-- `frontend/app/[locale]/(dashboard)/sections/page.tsx` — section cards + roster management modal
-
-**Segment 5 — My Profile + Change Password**
-- `AuthController.php` — added `updateProfile` (`PATCH /auth/profile`) + `updatePassword` (`PATCH /auth/password`) with `current_password` verification
-- `frontend/app/[locale]/(dashboard)/profile/page.tsx` — profile info form + change password form
-- `frontend/app/[locale]/(dashboard)/layout.tsx` — user name links to `/profile`
-
-**Segment 6 — Risk Alert Enhancements**
-- `RiskAlertController.php` — added `store` (`POST /risk-alerts`) + `getStudentRiskAlerts` (`GET /students/{id}/risk-alerts`)
-- `RiskAlertPolicy.php` — admin+counselor create/update/delete
-- `Student.php` — added `riskAlerts()` HasMany relationship
-- `frontend/app/[locale]/(dashboard)/risk-alerts/page.tsx` — "+ Raise alert" modal (student picker, attendance, grade drop, risk factors, notes) + inline notes editing (click to edit, blur-save)
-- `frontend/app/[locale]/(dashboard)/students/[id]/page.tsx` — "Risk history" card showing last 5 alerts per student
-
-**Key patterns discovered during implementation:**
-- `date_of_birth` doesn't exist as a column (students table uses `dob`); solved with `$appends = ['date_of_birth']` + `getDateOfBirthAttribute()` on `Student` model
-- Composite PK pivots (`household_members`, `section_student`, `section_teacher`) cannot use `BelongsToMany::attach()` — must use `DB::table()->insert()` / `delete()`
-- Gate-style `authorize()` calls in policies require actual model instances, not `Model::class` strings (caused 500 when `attachToStudent` was called with `Guardian::class` instead of a resolved Guardian instance)
-- `risk_alerts.status` Postgres enum required migration to add `resolved` value
-
-**Pre-existing TS errors (not from this work):** 4 errors from prior sessions — `students/[id]/page.tsx` importing `useLocale` from `next/navigation` instead of `next-intl`, `i18n/request.tsx` locale type mismatch, deleted `app/[locale]/page.tsx` ghost reference, and `playwright.config.ts` `baseURL` type mismatch.
-
-
-Browser called `/api/stats` without a token (fresh page before login) → `Authenticate` middleware `redirectTo()` called `route('login')` which didn't exist → `RouteNotFoundException` → Whoops HTML 500 page.
-
-**Fixes**:
-- Created `App\Http\Middleware\Authenticate` extending Laravel's, overriding `redirectTo()` to return `null` for `api/*` routes
-- Simplified exception handler in `bootstrap/app.php` to always return JSON for `api/*` routes (removed `wantsJson()` check)
-- Added `/login` named route in `web.php` as fallback
-
-**Verified**: Fresh page load → login redirect with no 500. All pages (admissions, students, sections, risk-alerts, broadcast) load cleanly after login.
-- **Wrong response parsing**: `apiFetch` returns `{data: {token, user}}` from the API, but login handler used `res.token` / `res.user` (top-level) instead of `res.data.token` / `res.data.user`. `saveSession` received `user=undefined` → stored string `"undefined"` in localStorage.
-- **Routing conflict**: Both `/[locale]/page.tsx` and `/[locale]/(dashboard)/page.tsx` resolved to `/en`. Root page (redirect to login) won, dashboard never loaded.
-- **CSRF 302 loop**: `EnsureFrontendRequestsAreStateful` was prepended to ALL API routes by `SanctumServiceProvider::boot()`, not just routes in `bootstrap/app.php`. Even with `stateful: []` config, the middleware ran (though `fromFrontend()` returned false, it still added overhead). Also, bootstrap was not in docker-compose volume mounts, so `bootstrap/app.php` changes weren't picked up.
-
-**Fixes**:
-- Added password input field to login form
-- Fixed `LoginResponse` type and `saveSession(res.data.token, res.data.user)`
-- Deleted `/[locale]/page.tsx` so `(dashboard)/page.tsx` owns `/en`
-- Removed `EnsureFrontendRequestsAreStateful` from `bootstrap/app.php`
-- Published `backend/config/sanctum.php` with `stateful: []` (belt-and-suspenders)
-- Added `./backend/bootstrap` to docker-compose volume mounts
-- Created `RemoveStatefulMiddlewareServiceProvider` (prevents Sanctum from prepending the middleware at boot)
-
-**Verified with Playwright (Node.js)**: Login → Dashboard → Stats all work end-to-end.
-The frontend was calling five endpoints that simply didn't exist on the Laravel API (`/api/auth/login`, `/api/auth/logout`, `/api/auth/me`, `GET /api/risk-alerts`, `PATCH /api/risk-alerts/{id}`). Login returned 404 against the backend, so the dashboard never worked against real data. Added:
-- **`AuthController`** (`backend/app/Http/Controllers/Api/AuthController.php`) — `login` validates credentials with `Hash::check`, revokes old tokens, returns `{data: {token, user}}`; `me` returns the authenticated user; `logout` deletes the current access token.
-- **`RiskAlertController`** (`backend/app/Http/Controllers/Api/RiskAlertController.php`) — `index` paginated list with `?status=` filter + `student` eager-load; `update` accepts `{status, notes}` with enum-validated status.
-- **`config/cors.php`** — allows `http://localhost:3000` + `FRONTEND_URL` env, `supports_credentials: true`, covers `api/*`, `sanctum/csrf-cookie`, `up`. Verified preflight returns `Access-Control-Allow-Origin: http://localhost:3000`.
-- **`backend/routes/api.php`** — registered `POST auth/login` (public, throttle:10), and `GET auth/me`, `POST auth/logout`, `GET risk-alerts`, `PATCH risk-alerts/{riskAlert}` inside the `auth:sanctum` group.
-- **Migration `2024_01_02_000001_add_notes_and_resolved_to_risk_alerts`** — adds `notes TEXT NULL` column and swaps the Postgres enum CHECK so `status` now accepts `resolved` alongside `pending|reviewed|escalated` (frontend already uses `resolved`).
-- **Sanctum migration** published via `vendor:publish --tag=sanctum-migrations`, then edited to use `uuidMorphs('tokenable')` instead of default `morphs()` — our User PK is UUID, not BIGINT.
-- **`RiskAlert` model** — added `notes` to `$fillable`, added `STATUS_RESOLVED` constant.
-- **`docker-compose.yml`** — mounted `./backend/config:/var/www/html/config` so new config files reach the container, and set `CACHE_STORE=array` + `SESSION_DRIVER=array` + `SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000` + `FRONTEND_URL=http://localhost:3000` in the backend service env. The `array` cache avoids the missing `cache` table that the throttle middleware was hitting.
-- **Deleted** `frontend/app/login/page.tsx` — leftover non-locale duplicate of `app/[locale]/login/page.tsx`.
-- **Verified end-to-end**: `POST /api/auth/login` → 200 with `{data:{token, user}}`; `GET /api/auth/me` with bearer token → 200; `/api/stats`, `/api/leads`, `/api/students`, `/api/sections`, `/api/risk-alerts` all return seeded data; `POST /api/auth/logout` revokes the token (next request → 401). i18n locales `/en`, `/es`, `/pt-BR` all return HTTP 200 with correct `lang` attribute.
+EduFlow is a school management platform for a bilingual (Spanish-English) K-12 school in Bolivia. The app went from a broken Docker setup (out of disk space, broken Dockerfile.local) to a **fully functional local development environment** with 206 real students seeded. The app is live at `http://localhost:3000` (frontend) and `http://localhost:8000` (Laravel API).
 
 ---
 
-## What's Still Pending
+## 1. Local Development Environment Setup
 
-### 1. Railway Deployment — EduFlow Project Not Accessible 🔴
-- Railway CLI is logged in as `ruddyribera@gmail.com` but EduFlow project was set up with `ruddyribera-ops@gmail.com`.
-- **Fix**: Either login to Railway with the correct account (`railway login`), or transfer the EduFlow project to the current account.
-- **Command to check**: `railway whoami` → should match the account that owns the EduFlow project.
+### Problem
+Docker Desktop ran out of disk space and was cleared. The previous `Dockerfile.local` was fundamentally broken (multi-stage build failures, NODE_ENV conflicts, missing dependencies). The app had no way to run locally.
 
-### 2. Railway — Set Environment Variables 🔴
-Once EduFlow is accessible in Railway:
-- **Backend service**: Needs `APP_KEY`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
-- **Frontend service**: Needs `NEXT_PUBLIC_API_URL` pointing to the backend's public URL
+### Solution: Hybrid Local Dev (Docker + Native Windows)
 
-### 3. Railway — Run Database Migrations 🔴
-After backend is deployed:
-```bash
-railway run --service backend php /var/www/html/artisan migrate:fresh --seed --force
+**Architecture:**
+- **Docker:** PostgreSQL 16-alpine on port 5432 (`POSTGRES_DB=eduflow_dev`, user/pass: `postgres/postgres`)
+- **Native Windows:** PHP 8.3.30 (Winget), Node.js v24, Composer
+
+**How to start EduFlow locally:**
+
+```powershell
+# Terminal 1 — Start PostgreSQL (Docker):
+docker start eduflow-postgres-1
+
+# Terminal 1 — Start Laravel backend:
+php C:\Users\Windows\AppData\Local\Microsoft\WinGet\Packages\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe\php.exe -d "extension_dir=C:\Users\Windows\AppData\Local\Microsoft\WinGet\Packages\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe\ext" C:\Users\Windows\eduflow\backend\artisan serve --port=8000 --host=0.0.0.0
+
+# Terminal 2 — Start Next.js frontend:
+cd C:\Users\Windows\eduflow\frontend; npm run dev
 ```
 
-### 4. Frontend Docker Build — package-lock.json 🔴
-- `npm ci` fails in `Dockerfile.railway` due to `package-lock.json` being out of sync (missing `@swc/helpers@0.5.21`).
-- **Already fixed**: Changed to `npm install` in `Dockerfile.railway` (committed as `0f7168e`).
-- **Note**: `Dockerfile.local` was also updated to use `npm install --ignore-scripts` but not yet committed.
+**Access:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- Admin login: `admin@eduflow.test` / `password`
 
-### 5. Start Frontend Dev Server ✅
-Frontend is running on port 3000 (native Windows `npm run dev`, PID visible via `netstat -ano | grep :3000`). All three locales return 200:
-- `http://localhost:3000/en/login` → 200 `<html lang="en">`
-- `http://localhost:3000/es/login` → 200 `<html lang="es">`
-- `http://localhost:3000/pt-BR/login` → 200 `<html lang="pt-BR">`
-- `http://localhost:3000/` → 307 → `/en`
+### PHP Setup Notes
+- PHP installed via winget: `winget install PHP.PHP.8.3`
+- PHP location: `C:\Users\Windows\AppData\Local\Microsoft\WinGet\Packages\PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe\`
+- `php.ini` manually configured with correct `extension_dir` pointing to the package's `ext/` folder
+- Extensions enabled: pdo_pgsql, pgsql, openssl, mbstring, exif, gd, bcmath, curl, zip, fileinfo
+- **Important:** PHP only works when PATH is manually refreshed in the same PowerShell call. Always include full PHP path or refresh PATH in the same command.
 
-### 6. Verify Full App Works Locally ✅
-Backend + frontend wired against Postgres (Docker). All pages work end-to-end (Playwright verified):
-- Fresh page load → redirect to login (no 500 error)
-- Login → dashboard with real data
-- Admissions, Students, Sections, Risk Alerts, Broadcast → all load cleanly
-```bash
-# Login
-curl.exe -s -X POST http://localhost:8000/api/auth/login \
-  -H "Content-Type: application/json" -H "Accept: application/json" \
-  -d '{"email":"admin@eduflow.test","password":"password"}'
-# → {"data":{"token":"1|...","user":{"id":"...","name":"Admin User",...}}}
+### Composer Setup
+- Composer PHAR downloaded to `C:\Users\Windows\AppData\Local\ComposerSetup\bin\composer.phar`
+- Wrapper script at `C:\Users\Windows\AppData\Local\ComposerSetup\bin\composer.bat`
+- Run commands with: `composer ...` (composer.bat handles PHP invocation)
 
-# Authenticated calls (all return real seeded data)
-curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/auth/me
-curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/stats
-curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/leads
-curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/students
-curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/sections
-curl.exe -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/risk-alerts
-```
-CORS preflight from `http://localhost:3000` returns `Access-Control-Allow-Origin: http://localhost:3000` and `Access-Control-Allow-Credentials: true`. Logout revokes token (subsequent request → 401).
+### PostgreSQL Connection
+- Laravel `.env` uses `DB_HOST=localhost` (not `host.docker.internal`)
+- Port: 5432, Database: `eduflow_dev`, User/Pass: `postgres/postgres`
+- `DB_CONNECTION=pgsql`
 
 ---
 
-## Local Docker Stack (Working)
+## 2. Files Changed This Session
 
-```bash
+### Modified Files
+| File | Change |
+|------|--------|
+| `docker-compose.yml` | Simplified to PostgreSQL-only (removed multi-service Docker builds) |
+| `backend/composer.json` | Updated dependencies |
+| `frontend/next.config.js` | Removed `output: 'standalone'` |
+| `frontend/playwright.config.ts` | Removed duplicate `baseURL` and invalid `launchOptions` |
+| `frontend/Dockerfile.local` | Simplified to `node:20-alpine` with `npm run dev` |
+| `frontend/app/[locale]/(dashboard)/students/[id]/page.tsx` | Fixed `useLocale` import (`next/navigation` → `next-intl`) |
+| `frontend/i18n/request.tsx` | Minor config update |
+
+### New Files Committed
+| File | Purpose |
+|------|---------|
+| `backend/app/Console/Commands/ImportBaseDeDatosStudents.php` | Imports 206 students from Excel master DB |
+| `backend/app/Console/Commands/ImportStudentAccounts.php` | Creates student User accounts from school emails |
+| `backend/app/Console/Commands/ImportAttendance.php` | Imports 4,151 daily attendance records |
+| `backend/app/Console/Commands/ImportGrades.php` | Imports 1st trimester grades (currently 0 — cells show `#DIV/0!`) |
+| `backend/app/Console/Commands/ImportParentMeetings.php` | Imports parent meeting agenda |
+| `backend/app/Console/Commands/ImportEduflowStudents.php` | Original JSON-based student import |
+| `backend/app/Models/ParentMeeting.php` | Model for parent meetings |
+| `backend/database/migrations/2024_01_01_000011_create_subjects_table.php` | Subjects table |
+| `backend/database/migrations/2024_01_01_000012_create_section_subjects_table.php` | Section-subject pivot |
+| `backend/database/migrations/2024_01_01_000013_create_parent_meetings_table.php` | Parent meetings table |
+| `backend/database/migrations/2024_01_01_000014_add_extra_fields_to_guardians_table.php` | `phone_2`, `relationship`, `address` on guardians |
+| `backend/seed_pedagogical.php` | Section/subject/section_subject seeder |
+
+---
+
+## 3. Database State
+
+### Current Counts
+| Table | Count |
+|-------|-------|
+| `users` | ~5 (admin + seed data) |
+| `students` | **206** |
+| `guardians` | **173** |
+| `sections` | **14** (NIDITO, PREKINDER, KINDER, 1st-6th PRIMARIO, 1st-5th SECUNDARIO) |
+| `subjects` | **25** (11 PRIMARIO + 14 SECUNDARIO) |
+| `section_student` | **206** (all students enrolled) |
+| `section_subjects` | **136** |
+| `attendances` | **4,151** (Feb–Nov 2026, daily P/A/L/T) |
+| `parent_meetings` | **17** |
+
+### Student Breakdown (206 total)
+| Level | Count |
+|-------|-------|
+| NIDITO | 10 |
+| PREKINDER | 9 |
+| KINDER | 14 |
+| PRIMARIO 1st–6th | 109 |
+| SECUNDARIO 1st–5th | 64 |
+
+### Student Matching Key
+**No government ID (RUDE) is available in the source data.** All matching across files uses:
+- **Full compound name** (e.g., `"BARBA MENDEZ SANTIAGO"`) — uppercase, accent-stripped
+- **Grade level** (e.g., `"1st"` PRIMARIO or `"1st"` SECUNDARIO)
+
+The `grade_level` field uses English ordinals (`1st`, `2nd`, etc.) while source Excel files use Bolivian codes (`1P`, `2P`, `1S`, `2S`, etc.).
+
+**Grade code mapping:**
+```php
+[
+    'ND' => ['grade' => 'NIDITO',  'level' => 'NIDITO'],
+    'PK' => ['grade' => 'PREKINDER','level' => 'PREKINDER'],
+    'K'  => ['grade' => 'KINDER',  'level' => 'KINDER'],
+    '1P' => ['grade' => '1st',     'level' => 'PRIMARIO'],
+    '2P' => ['grade' => '2nd',     'level' => 'PRIMARIO'],
+    '3P' => ['grade' => '3rd',     'level' => 'PRIMARIO'],
+    '4P' => ['grade' => '4th',     'level' => 'PRIMARIO'],
+    '5P' => ['grade' => '5th',     'level' => 'PRIMARIO'],
+    '6P' => ['grade' => '6th',     'level' => 'PRIMARIO'],
+    '1S' => ['grade' => '1st',     'level' => 'SECUNDARIO'],
+    '2S' => ['grade' => '2nd',     'level' => 'SECUNDARIO'],
+    '3S' => ['grade' => '3rd',     'level' => 'SECUNDARIO'],
+    '4S' => ['grade' => '4th',     'level' => 'SECUNDARIO'],
+    '5S' => ['grade' => '5th',     'level' => 'SECUNDARIO'],
+]
+```
+
+---
+
+## 4. Source Data Files
+
+**Location:** `C:\Users\Windows\Downloads\EduFlow - Registros pedagógicos\`
+
+| File | Content | Imported |
+|------|---------|---------|
+| `BASE DE DATOS ESTUDIANTES LPS 2026.xlsx` | 206 students with parent emails | ✅ Yes |
+| `LISTA DE ESTUDIANTES LPS 2026.xlsx` | Student school emails + passwords | ✅ Yes (57 accounts) |
+| `REGISTRO DE ASISTENCIAS LPS 2026/` | 14 grade folders × 10 monthly sheets | ✅ Yes (4,151 records) |
+| `NIVEL PRIMARIO/` (6 files) | 1st trimester subject grades | ⚠️ Skipped — all cells `#DIV/0!` |
+| `NIVEL SECUNDARIO/` (5 files) | 1st trimester subject grades | ⚠️ Skipped — all cells `#DIV/0!` |
+| `AGENDA SE SEGUIMIENTO API 1 TRIMESTRE.xlsx` | Parent meeting schedule | ✅ Yes (17 meetings) |
+| `Lista primari IQMAX.xlsx` | Tutor phone numbers | ❌ Not imported |
+| `LISTA DE DELEGADOS.xlsx` | Class delegates | ❌ Not imported |
+
+### Re-run commands for grades (when data is available):
+```powershell
+php -d "extension_dir=..." -d "memory_limit=1024M" ...\artisan eduflow:import-grades
+```
+
+---
+
+## 5. New `parent_meetings` Table
+
+**Migration:** `2024_01_01_000013_create_parent_meetings_table.php`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | uuid | PK |
+| `student_id` | uuid | FK → students |
+| `meeting_date` | date | |
+| `tutor_name` | string | Teacher/tutor name |
+| `day_time` | string | e.g. "MARTES 24/03 A LAS 12:15" |
+| `attendees` | string | Who attended |
+| `modality` | string | PRESENCIAL / VIRTUAL |
+| `confirmation` | string | SI / NO |
+| `observation` | text | Notes |
+| `timestamps` | | created_at, updated_at |
+
+**Model:** `app/Models/ParentMeeting.php` — belongs to Student.
+
+---
+
+## 6. Guardians — New Fields
+
+**Migration:** `2024_01_01_000014_add_extra_fields_to_guardians_table.php`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `phone` | string | Already existed |
+| `phone_2` | string | New — second contact number |
+| `relationship` | string | New — "Madre", "Padre", "Tutor", etc. |
+| `address` | text | New — full address |
+
+Ruddy plans to populate these manually later.
+
+---
+
+## 7. Pending Work
+
+### High Priority
+1. **1st Trimester Grades** — Source Excel files exist but cells are empty (`#DIV/0!`). Re-run `eduflow:import-grades` when teachers fill in actual scores.
+2. **Student Login** — 57 of 206 students have User accounts (from `LISTA DE ESTUDIANTES`). The remaining students have no accounts yet.
+
+### Medium Priority
+1. **Student grade-level sections** — 206 students exist but are not yet assigned to sections via `section_student`. The import created sections but the student-section attachment needs verification.
+2. **Attendance UI** — The attendance data is in the DB but there's no UI to view it.
+3. **Grades UI** — No UI for entering/viewing grades yet.
+4. **Parent Meetings UI** — Table exists, no UI.
+
+### Low Priority
+1. **Tutor phone numbers** — `Lista primari IQMAX.xlsx` has phones, not imported (Ruddy said manual entry for now).
+2. **Class delegates** — `LISTA DE DELEGADOS.xlsx` not imported.
+3. **RUDE extraction** — The `all_students_with_rude.json` exists (not committed) with RUDE numbers extracted from another source. Could be matched to students later if a RUDE field is added to the students table.
+
+---
+
+## 8. Known Issues
+
+1. **PHP PATH issue** — PHP only works when PATH is refreshed in the same PowerShell call. Use full PHP path or chain commands with `;`.
+2. **Grades show `#DIV/0!`** — Source Excel files have formulas for averages but no actual grade data entered yet.
+3. **No RUDE/gov ID field** — Students table has no RUDE column. Matching is by name+grade only (unreliable for duplicates).
+4. **57 of 206 students have accounts** — `student_id` on User model is not yet widely populated.
+
+---
+
+## 9. Git
+
+**Last commit:** `be848de` — `feat: add local dev setup, import pipeline, and 206 real students`
+**Branch:** `main` (pushed ✅)
+
+**Privacy:** `all_students.json` and `all_students_with_rude.json` are gitignored (contain student PII).
+
+---
+
+## 10. Quick Reference
+
+```powershell
 # Start everything
-cd C:\Users\Windows\eduflow
-docker-compose -f docker-compose.yml up -d
+docker start eduflow-postgres-1
+php ...\php.exe -d "extension_dir=...\ext" ...\artisan serve --port=8000 --host=0.0.0.0
+cd ...\frontend; npm run dev
 
-# Run migrations + seed
-docker exec eduflow-backend-1 php /var/www/html/artisan migrate:fresh --seed --force
+# Re-import students (if BASE DE DATOS Excel is updated)
+php ...\artisan eduflow:import-base-de-datos
 
-# Test API (unauthenticated - returns 401 JSON)
-curl.exe -s -H "Accept: application/json" http://localhost:8000/api/stats
+# Re-import attendance
+php ...\artisan eduflow:import-attendance
 
-# Backend: http://localhost:8000
-# Frontend: http://localhost:3000 (locale redirect 307 → 200)
-```
+# Re-import grades (when data available)
+php ...\artisan eduflow:import-grades
 
----
-
-## File Changes Summary
-
-### Committed & Pushed
-| File | What Changed |
-|------|-------------|
-| `backend/database/seeders/DatabaseSeeder.php` | Fixed variable ordering + DB::table()->insert() for composite PKs |
-| `backend/bootstrap/app.php` | Added JSON 401 handler for API auth exceptions |
-| `backend/database/migrations/2024_01_01_000004_create_household_members_table.php` | Composite PK (student_id, guardian_id) |
-| `backend/database/migrations/2024_01_01_000007_create_section_relations_tables.php` | Composite PKs for section_student + section_teacher |
-| `backend/Dockerfile.local` | Alpine base, postgresql libs, storage dirs |
-| `backend/.dockerignore` | Excludes vendor/ |
-| `docker-compose.yml` | Fixed volume mounts, service name |
-| `frontend/Dockerfile.railway` | npm install instead of npm ci |
-| `frontend/Dockerfile.local` | npm install --ignore-scripts |
-
-### New (April 19 evening — auth + risk-alerts + CORS)
-
-### New (April 19 late — login flow bugs)
-
-| File | What Changed |
-|------|-------------|
-| `backend/app/Providers/RemoveStatefulMiddlewareServiceProvider.php` | **NEW** — prevents Sanctum from prepending `EnsureFrontendRequestsAreStateful` to API middleware |
-| `backend/config/sanctum.php` | **NEW** — published from vendor; `stateful: []` prevents `fromFrontend()` matching |
-| `frontend/app/[locale]/login/page.tsx` | Added password field; fixed `LoginResponse` type to `data:{token,user}`; fixed `saveSession(res.data.token, res.data.user)` |
-| `frontend/app/[locale]/page.tsx` | **DELETED** — conflicting route; `(dashboard)/page.tsx` now owns `/en` |
-| `backend/bootstrap/app.php` | Removed `EnsureFrontendRequestsAreStateful` from API middleware |
-| `docker-compose.yml` | Added `./backend/bootstrap` volume mount |
-
-### New (April 19 late — unauthenticated API 500 fix)
-
-| File | What Changed |
-|------|-------------|
-| `backend/app/Http/Middleware/Authenticate.php` | **NEW** — extends Laravel's Authenticate, overrides `redirectTo()` to return `null` for `api/*` routes |
-| `backend/bootstrap/app.php` | Exception handler: always return JSON for `api/*` (removed `wantsJson()` check); added `auth` middleware alias |
-| `backend/routes/web.php` | Added `/login` named route that redirects to frontend `/en/login` |
-
-### Previous (auth + risk-alerts + CORS)
-
-| File | What Changed |
-|------|-------------|
-| `backend/app/Http/Controllers/Api/AuthController.php` | **NEW** — login / me / logout with Sanctum |
-| `backend/app/Http/Controllers/Api/RiskAlertController.php` | **NEW** — index (paginated, status filter) + update |
-| `backend/config/cors.php` | **NEW** — allows localhost:3000 + FRONTEND_URL, credentials |
-| `backend/routes/api.php` | Added auth/login (public), auth/me, auth/logout, risk-alerts routes |
-| `backend/app/Models/RiskAlert.php` | Added `notes` fillable + `STATUS_RESOLVED` |
-| `backend/database/migrations/2024_01_02_000001_add_notes_and_resolved_to_risk_alerts.php` | **NEW** — adds `notes` column + expands status CHECK to include `resolved` |
-| `backend/database/migrations/2026_04_19_212003_create_personal_access_tokens_table.php` | **NEW** (Sanctum, published) — edited to use `uuidMorphs('tokenable')` for UUID User PKs |
-| `docker-compose.yml` | Mounted `./backend/config`, added CACHE_STORE=array / SESSION_DRIVER=array / SANCTUM_STATEFUL_DOMAINS / FRONTEND_URL env |
-| `frontend/app/login/page.tsx` | **DELETED** — leftover duplicate of `app/[locale]/login/page.tsx` |
-
----
-
-## Key Technical Decisions
-
-1. **Composite PK pivot tables**: Laravel's `BelongsToMany::attach()` doesn't work with composite primary key pivot tables — must use `DB::table()->insert()`.
-
-2. **Volume mounts**: On Windows + Docker, `./backend:/var/www/html` overwrites the image's `vendor/` directory. Only mount the specific subdirectories that need live code reloading.
-
-3. **next-intl v4**: `getRequestConfig` uses `requestLocale` (not `locale`), and `hasLocale` doesn't exist in `next-intl/routing`.
-
-4. **Laravel 11**: No `config/` directory — all config is via `.env` + `bootstrap/app.php`. Dockerfile should NOT copy `config/`.
-
-5. **API auth**: `EnsureFrontendRequestsAreStateful` redirects to `login` route when unauthenticated. Must override the exception handler to return JSON 401 for API routes.
-
----
-
-## Git Log (Recent Commits)
-
-```
-65c30f8 (HEAD -> main) fix: unauthenticated API requests return JSON 401 instead of 500 error
-11362fc fix: login flow — CSRF bypass, missing password field, wrong response parsing, routing conflict
-81fef2c fix: login page hydration flash and apiFetch JSON parse crash
-c786b00 feat: EduFlow fully wired — Auth + RiskAlerts + CORS + verified e2e
-```
-
----
-
-## Credentials & Access
-
-- **GitHub**: https://github.com/ruddyribera-ops/EduFlow
-- **Railway**: https://railway.app (account: `ruddyribera@gmail.com` — but EduFlow may be under `ruddyribera-ops@gmail.com`)
-- **Test accounts** (after `migrate:fresh --seed`):
-  - Admin: `admin@eduflow.test` / `password`
-  - Counselor: `sarah@eduflow.test` / `password`
-  - Teacher: `emily@eduflow.test` / `password`
-
----
-
-## How to Resume
-
-Everything is committed and pushed. The local stack is fully working. Only Railway deployment remains:
-
-1. **Fix Railway account mismatch**: `railway logout` → `railway login` with the account that owns EduFlow (`ruddyribera-ops@gmail.com`).
-2. **Link the Railway services to GitHub**: In the Railway dashboard, connect the EduFlow repo and configure each service:
-   - **Backend**: Root directory = `backend`, Dockerfile = `Dockerfile.railway`
-   - **Frontend**: Root directory = `frontend`, Dockerfile = `Dockerfile.railway`
-3. **Set Railway environment variables**:
-   - **Backend**: `APP_KEY`, `DB_HOST` (PostgreSQL connection string), `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `CACHE_STORE=array`, `SESSION_DRIVER=array`
-   - **Frontend**: `NEXT_PUBLIC_API_URL` (backend's public URL)
-4. **Run migrations on Railway**:
-   ```bash
-   railway run --service backend php /var/www/html/artisan migrate:fresh --seed --force
-   ```
-
-## Local Dev Commands
-
-```bash
-# Start Docker stack
-cd C:\Users\Windows\eduflow
-docker-compose up -d
-
-# Run migrations (after fresh start)
-docker exec eduflow-backend-1 php /var/www/html/artisan migrate:fresh --seed --force
-
-# Test login
-curl -X POST http://localhost:8000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@eduflow.test","password":"password"}'
-
-# Frontend dev server (run separately, not in docker)
-cd frontend && npm run dev
+# Login
+http://localhost:3000
+admin@eduflow.test / password
 ```
