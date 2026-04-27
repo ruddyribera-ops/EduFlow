@@ -119,13 +119,45 @@ export interface BroadcastResult {
 
 export interface DashboardStats {
   leads_total: number;
-  leads_by_stage: Record<LeadStatus, number>;
+  leads_by_stage: Record<string, number>;
   leads_active: number;
   students_total: number;
   students_enrolled: number;
   sections_total: number;
   risk_alerts_pending: number;
   risk_alerts_total: number;
+  risk_by_status: Record<string, number>;
+  attendance_today: {
+    total: number;
+    present: number;
+    absent: number;
+    tardy: number;
+    excused: number;
+    present_rate: number;
+  };
+  incidents_this_week: { total: number; open: number };
+  grade_summary: {
+    total_records: number;
+    avg_percentage: number | null;
+    failing_count: number;
+  };
+  enrollment_by_month: number[];
+  section_attendance: Array<{
+    name: string;
+    grade_level: string;
+    total_students: number;
+    present: number;
+    absent: number;
+    attendance_rate: number;
+  }>;
+  upcoming_meetings: Array<{
+    id: string;
+    student_name: string | null;
+    meeting_date: string | null;
+    day_time: string | null;
+    modality: string | null;
+    confirmation: string | null;
+  }>;
   broadcasts_sent: number;
 }
 

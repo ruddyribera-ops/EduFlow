@@ -130,7 +130,12 @@ Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
 });
 
 // Dashboard stats
-Route::middleware(['auth:sanctum'])->get('stats', [App\Http\Controllers\Api\StatsController::class, 'dashboard']);
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    Route::get('stats', [App\Http\Controllers\Api\StatsController::class, 'dashboard']);
+    Route::get('stats/enrollment-over-time', [App\Http\Controllers\Api\StatsController::class, 'enrollmentOverTime']);
+    Route::get('stats/attendance-trend',    [App\Http\Controllers\Api\StatsController::class, 'attendanceTrend']);
+    Route::get('stats/incident-trend',       [App\Http\Controllers\Api\StatsController::class, 'incidentTrend']);
+});
 
 // Emergency broadcasts
 Route::middleware(['auth:sanctum', 'throttle:5,1'])->group(function () {

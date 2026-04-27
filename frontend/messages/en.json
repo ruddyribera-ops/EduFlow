@@ -1,4 +1,8 @@
 {
+  "common": {
+    "loading": "Loading…",
+    "error": "Error"
+  },
   "app": {
     "title": "EduFlow",
     "subtitle": "School CRM"
@@ -25,20 +29,32 @@
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "School-wide overview",
+    "totalStudents": "Total Students",
+    "enrolled": "enrolled",
+    "attendanceToday": "Attendance Today",
+    "present": "Present",
+    "absent": "Absent",
+    "tardy": "Tardy",
+    "excused": "Excused",
+    "openIncidents": "Open Incidents",
+    "thisWeek": "this week",
+    "riskAlerts": "Risk Alerts",
     "activeLeads": "Active Leads",
-    "totalInPipeline": "total in pipeline",
-    "enrolledStudents": "Enrolled Students",
-    "totalStudents": "total students",
-    "sections": "Sections",
-    "currentSemester": "Current semester",
-    "pendingRiskAlerts": "Pending Risk Alerts",
-    "totalAlerts": "total alerts",
-    "pipeline": "Admissions Pipeline",
-    "openKanban": "Open Kanban →",
-    "quickActions": "Quick Actions",
-    "sendBroadcast": "Send Emergency Broadcast",
-    "reviewAlerts": "Review Pending Alerts",
-    "browseStudents": "Browse Students"
+    "enrollmentFunnel": "Enrollment Funnel",
+    "gradeSummary": "Grade Summary",
+    "avgGrade": "Avg Grade",
+    "failingGrades": "Failing Grades",
+    "totalRecords": "Total Records",
+    "attendanceTrend": "Attendance Trend (30 days)",
+    "enrollmentTrend": "Enrollment by Month",
+    "incidentBreakdown": "Incidents This Week",
+    "upcomingMeetings": "Upcoming Parent Meetings",
+    "sectionAttendance": "Section Attendance This Week",
+    "section": "Section",
+    "students": "Students",
+    "rate": "Rate",
+    "noUpcomingMeetings": "No meetings scheduled this week",
+    "noData": "No data available"
   },
   "admissions": {
     "title": "Admissions Pipeline",

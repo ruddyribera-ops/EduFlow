@@ -1,4 +1,8 @@
 {
+  "common": {
+    "loading": "Cargando…",
+    "error": "Error"
+  },
   "app": {
     "title": "EduFlow",
     "subtitle": "CRM Escolar"
@@ -25,20 +29,32 @@
   "dashboard": {
     "title": "Panel",
     "subtitle": "Descripción general de la escuela",
+    "totalStudents": "Total de Estudiantes",
+    "enrolled": "inscritos",
+    "attendanceToday": "Asistencia Hoy",
+    "present": "Presente",
+    "absent": "Ausente",
+    "tardy": "Tardanza",
+    "excused": "Excusado",
+    "openIncidents": "Incidentes Abiertos",
+    "thisWeek": "esta semana",
+    "riskAlerts": "Alertas de Riesgo",
     "activeLeads": "Leads Activos",
-    "totalInPipeline": "total en el pipeline",
-    "enrolledStudents": "Estudiantes Inscritos",
-    "totalStudents": "total de estudiantes",
-    "sections": "Secciones",
-    "currentSemester": "Semestre actual",
-    "pendingRiskAlerts": "Alertas Pendientes",
-    "totalAlerts": "total de alertas",
-    "pipeline": "Pipeline de Admisiones",
-    "openKanban": "Abrir Kanban →",
-    "quickActions": "Acciones Rápidas",
-    "sendBroadcast": "Enviar Broadcast de Emergencia",
-    "reviewAlerts": "Revisar Alertas Pendientes",
-    "browseStudents": "Ver Estudiantes"
+    "enrollmentFunnel": "Embudo de Inscripción",
+    "gradeSummary": "Resumen de Calificaciones",
+    "avgGrade": "Promedio",
+    "failingGrades": "Calif. Bajas",
+    "totalRecords": "Total de Registros",
+    "attendanceTrend": "Tendencia de Asistencia (30 días)",
+    "enrollmentTrend": "Inscripción por Mes",
+    "incidentBreakdown": "Incidentes Esta Semana",
+    "upcomingMeetings": "Próximas Reuniones de Padres",
+    "sectionAttendance": "Asistencia por Sección Esta Semana",
+    "section": "Sección",
+    "students": "Estudiantes",
+    "rate": "Tasa",
+    "noUpcomingMeetings": "Sin reuniones programadas esta semana",
+    "noData": "Sin datos disponibles"
   },
   "admissions": {
     "title": "Pipeline de Admisiones",
