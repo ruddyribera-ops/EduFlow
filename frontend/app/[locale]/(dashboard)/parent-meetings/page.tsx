@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { useParentMeetings } from "@/hooks/useParentMeetings";
+import { useParentMeetings, type CreateMeetingPayload } from "@/hooks/useParentMeetings";
 import { useSections } from "@/hooks/useSections";
 import type { Section } from "@/types";
 
@@ -151,9 +151,9 @@ export default function ParentMeetingsPage() {
         observation: form.observation || undefined,
       };
       if (editingId) {
-        await update(editingId, payload);
+        await update(editingId, payload as CreateMeetingPayload);
       } else {
-        await create(payload as any);
+        await create(payload as CreateMeetingPayload);
       }
       setShowModal(false);
     } catch (err) {

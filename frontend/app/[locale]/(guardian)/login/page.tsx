@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useLocale } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { useTranslations } from "next-intl";
 import { useGuardianAuth } from "@/hooks/useGuardianAuth";
 

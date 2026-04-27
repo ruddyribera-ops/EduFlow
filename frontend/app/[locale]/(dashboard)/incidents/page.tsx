@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { useIncidents, type IncidentType, type IncidentSeverity } from "@/hooks/useIncidents";
+import { useIncidents, type Incident, type IncidentType, type IncidentSeverity } from "@/hooks/useIncidents";
 import { useSections } from "@/hooks/useSections";
 import type { Section } from "@/types";
 
@@ -75,7 +75,7 @@ export default function IncidentsPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const [selectedIncident, setSelectedIncident] = useState<any | null>(null);
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [showResolveModal, setShowResolveModal] = useState(false);
   const [resolveForm, setResolveForm] = useState<ResolveForm>({
     resolved_at: new Date().toISOString().slice(0, 16),
@@ -94,16 +94,14 @@ export default function IncidentsPage() {
   const { sections } = useSections();
 
   // Get enrolled students from sections
+  interface StudentOption { id: string; name: string; grade_level: string }
   const enrolledStudents = useMemo(() => {
-    const studentMap = new Map<string, { id: string; name: string; grade_level: string }>();
+    const studentMap = new Map<string, StudentOption>();
     sections.forEach((s: Section) => {
-      s.students?.forEach((st: any) => {
+      s.students?.forEach((st) => {
+        const student: StudentOption = { id: st.id, name: `${st.first_name} ${st.last_name}`, grade_level: st.grade_level };
         if (!studentMap.has(st.id)) {
-          studentMap.set(st.id, {
-            id: st.id,
-            name: `${st.first_name} ${st.last_name}`,
-            grade_level: st.grade_level,
-          });
+          studentMap.set(st.id, student);
         }
       });
     });
@@ -179,7 +177,7 @@ export default function IncidentsPage() {
     }
   }
 
-  function openResolve(incident: any) {
+  function openResolve(incident: Incident) {
     setSelectedIncident(incident);
     setShowResolveModal(true);
   }
@@ -226,7 +224,7 @@ export default function IncidentsPage() {
           <label className="block text-xs font-medium text-slate-600 mb-1">Status</label>
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) => setStatusFilter(e.target.value as "" | "open" | "resolved")}
             className="border border-slate-300 rounded px-3 py-1.5 text-sm"
           >
             <option value="">All</option>

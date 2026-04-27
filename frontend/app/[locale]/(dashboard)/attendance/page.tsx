@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useSections } from "@/hooks/useSections";
 import { useAttendance, type AttendanceStatus } from "@/hooks/useAttendance";
@@ -70,20 +70,22 @@ export default function AttendancePage() {
   const [initialized, setInitialized] = useState(false);
 
   // When records come in from API, seed local state
-  if (!initialized && records.length > 0) {
-    setLocalRecords(
-      records.map((r) => ({
-        id: r.id,
-        student_id: r.student_id,
-        student_name: r.student_name ?? "Unknown",
-        grade_level: r.grade_level,
-        status: r.status,
-        notes: r.notes ?? "",
-        isDirty: false,
-      }))
-    );
-    setInitialized(true);
-  }
+  useEffect(() => {
+    if (!initialized && records.length > 0) {
+      setLocalRecords(
+        records.map((r) => ({
+          id: r.id,
+          student_id: r.student_id,
+          student_name: r.student_name ?? "Unknown",
+          grade_level: r.grade_level,
+          status: r.status,
+          notes: r.notes ?? "",
+          isDirty: false,
+        }))
+      );
+      setInitialized(true);
+    }
+  }, [records, initialized]);
 
   function setStatus(studentId: string, status: AttendanceStatus) {
     setLocalRecords((prev) =>
