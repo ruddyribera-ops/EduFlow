@@ -75,12 +75,18 @@ RUN mkdir -p /app/storage/app/public /app/storage/framework/{cache,sessions,test
 RUN chown -R www:www /app/storage /app/bootstrap/cache
 RUN chmod -R 775 /app/storage /app/bootstrap/cache
 
+# Create startup script that runs migrations then serves
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'php artisan migrate --force' >> /start.sh && \
+    echo 'exec php artisan serve --host=0.0.0.0 --port=8000' >> /start.sh && \
+    chmod +x /start.sh
+
 USER www
 
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+# Healthcheck adjusted
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/up || exit 1
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["/start.sh"]

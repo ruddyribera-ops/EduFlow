@@ -1,0 +1,25 @@
+[build]
+  builder = "DOCKERFILE"
+  dockerfilePath = "frontend/Dockerfile.railway"
+
+[deploy]
+  numReplicas = 1
+  restartPolicyType = "ON_FAILURE"
+  restartPolicyMaxRetries = 10
+
+[deploy.healthcheck]
+  path = "/"
+  interval = 30
+  timeout = 10
+  startPeriod = 20
+
+[environment]
+  NODE_ENV = "production"
+  NEXT_TELEMETRY_DISABLED = "1"
+  # IMPORTANT: Update this to the actual backend URL after deploying the backend service.
+  # The backend URL will be in the format: https://eduflow-backend.up.railway.app
+  NEXT_PUBLIC_API_URL = "https://eduflow-backend.up.railway.app/api"
+
+[metadata]
+  name = "EduFlow Frontend"
+  region = "us-east-1"
